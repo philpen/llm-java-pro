@@ -10,3 +10,37 @@ step 4: train loss 4.616666 (took 9928 ms)
 step 5: train loss 4.2314296 (took 11497 ms)
 step 6: train loss 3.7531614 (took 11620 ms)
 step 7: train loss 3.6504583 (took 10590 ms)
+step 8: train loss 4.182245 (took 11484 ms)
+step 9: train loss 4.1995807 (took 10486 ms)
+num batches
+step 10 val loss 4.323764
+step 10: train loss 4.2886624 (took 12550 ms)
+step 11: train loss 3.5606437 (took 13157 ms)
+step 12: train loss 3.731437 (took 12310 ms)
+step 13: train loss 4.1585093 (took 11972 ms)
+step 14: train loss 3.8856308 (took 12406 ms)
+step 15: train loss 3.7664862 (took 10852 ms)
+step 16: train loss 4.1440067 (took 11022 ms)
+step 17: train loss 3.9611669 (took 11091 ms)
+step 18: train loss 3.7960443 (took 10977 ms)
+step 19: train loss 3.3710425 (took 11474 ms)
+num batches
+step 20 val loss 4.1878552
+generating:
+---
+
+I have been so much more flinty
+Than he was
+Than he was the most flinty
+Than he was the most flinty.
+
+<|endoftext|>SICINIUS:
+Than for he's not an flintt;
+Than for he's not an
+---
+
+step 20: train loss 3.8827896 (took 7953 ms)
+step 21: train loss 4.1999807 (took 7925 ms)
+step 22: train loss 4.4284263 (took 7972 ms)
+step 23: train loss 3.685925 (took 8017 ms)
+step 24: train loss 3.6432953 (took 8169 ms)
