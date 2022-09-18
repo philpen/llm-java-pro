@@ -6,4 +6,6 @@
 
     <groupId>org.hjackson.llm</groupId>
     <artifactId>gpt2</artifactId>
-    <ver
+    <version>1.0-SNAPSHOT</version>
+
+   
