@@ -9,4 +9,4 @@
     <version>1.0-SNAPSHOT</version>
 
     <properties>
-        <native.mave
+        <native.maven.plugin.version>0.9.12</native.
