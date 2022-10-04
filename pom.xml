@@ -10,4 +10,5 @@
 
     <properties>
         <native.maven.plugin.version>0.9.12</native.maven.plugin.version>
-        <maven.compiler.source>21</maven.compiler.so
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.targ
