@@ -14,4 +14,5 @@
         <maven.compiler.target>21</maven.compiler.target>
         <slf4j.version>2.0.13</slf4j.version>
         <logback.verssion>1.5.6</logback.verssion>
-        <project.build.sourceEncoding>UTF-8</pr
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+   
