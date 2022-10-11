@@ -16,3 +16,4 @@
         <logback.verssion>1.5.6</logback.verssion>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <imageName>JavaGPT2</imageName>
+        <mainClass>org.hjackson.ll
