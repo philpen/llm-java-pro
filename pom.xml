@@ -17,4 +17,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <imageName>JavaGPT2</imageName>
         <mainClass>org.hjackson.llm.Llm</mainClass>
-    </properties
+    </properties>
+
+    <dependencies>
+<!--
