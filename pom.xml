@@ -23,4 +23,4 @@
 <!--        <dependency>-->
 <!--            <groupId>ch.qos.logback</groupId>-->
 <!--            <artifactId>logback-core</artifactId>-->
-<!--            <versi
+<!--            <version>${logback.verssion}</versi
