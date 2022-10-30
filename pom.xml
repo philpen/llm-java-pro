@@ -28,4 +28,5 @@
 <!--        <dependency>-->
 <!--            <groupId>ch.qos.logback</groupId>-->
 <!--            <artifactId>logback-classic</artifactId>-->
-<!--            <version>${logb
+<!--            <version>${logback.verssion}</version>-->
+<!-
