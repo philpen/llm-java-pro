@@ -51,4 +51,5 @@
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artif
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.5.2
