@@ -50,4 +50,5 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.apache.ma
+                <groupId>org.apache.maven.plugins</groupId>
+                <ar
