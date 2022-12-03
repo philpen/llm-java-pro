@@ -57,3 +57,4 @@
                     <execution>
                         <phase>package</phase>
                         <goals>
+                            <go
