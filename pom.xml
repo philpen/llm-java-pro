@@ -57,4 +57,5 @@
                     <execution>
                         <phase>package</phase>
                         <goals>
-                            <go
+                            <goal>shade</goal>
+                        </goals
