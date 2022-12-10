@@ -60,4 +60,5 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
-                            <transfor
+                            <transformers>
+                                <trans
