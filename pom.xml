@@ -61,4 +61,4 @@
                         </goals>
                         <configuration>
                             <transformers>
-                                <trans
+                                <transformer implementation="org.apache.m
