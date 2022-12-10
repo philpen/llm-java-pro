@@ -61,4 +61,4 @@
                         </goals>
                         <configuration>
                             <transformers>
-                                <transformer implementation="org.apache.m
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceT
