@@ -65,4 +65,5 @@
                                     <mainClass>org.hjackson.llm.Llm</mainClass>
                                 </transformer>
                             </transformers>
-                        </
+                        </configuration>
+                    </e
