@@ -66,4 +66,5 @@
                                 </transformer>
                             </transformers>
                         </configuration>
-                    </e
+                    </execution>
+                <
