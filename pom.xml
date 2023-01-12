@@ -70,4 +70,5 @@
                 </executions>
             </plugin>
             <plugin>
-                <groupId>org.apache.mav
+                <groupId>org.apache.maven.plugins</groupId>
+                
