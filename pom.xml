@@ -75,4 +75,4 @@
                 <version>3.12.1</version>
                 <configuration>
                     <release>21</release>
-                    <compilerArgs 
+                    <compilerArgs combine.children="append
