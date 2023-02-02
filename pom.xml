@@ -76,4 +76,5 @@
                 <configuration>
                     <release>21</release>
                     <compilerArgs combine.children="append">
-                        <arg
+                        <arg>--enable-preview</arg>
+               
