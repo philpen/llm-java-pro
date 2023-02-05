@@ -77,4 +77,5 @@
                     <release>21</release>
                     <compilerArgs combine.children="append">
                         <arg>--enable-preview</arg>
-                        <arg>--add-modules=jdk.inc
+                        <arg>--add-modules=jdk.incubator.vector</arg>
+         
