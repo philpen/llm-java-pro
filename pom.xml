@@ -79,4 +79,6 @@
                         <arg>--enable-preview</arg>
                         <arg>--add-modules=jdk.incubator.vector</arg>
                     </compilerArgs>
-               
+                </configuration>
+            </plugin>
+   
