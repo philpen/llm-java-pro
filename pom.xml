@@ -86,4 +86,4 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.2.2</version>
                 <configuration>
-                    <argLine>-ea --enabl
+                    <argLine>-ea --enable-preview -Xmx8g --add-modu
