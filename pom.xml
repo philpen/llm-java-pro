@@ -88,4 +88,6 @@
                 <configuration>
                     <argLine>-ea --enable-preview -Xmx8g --add-modules jdk.incubator.vector</argLine>
                 </configuration>
-            </plu
+            </plugin>
+<!--            <plugin>-->
+<
