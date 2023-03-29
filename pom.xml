@@ -93,4 +93,5 @@
 <!--                <groupId>org.graalvm.buildtools</groupId>-->
 <!--                <artifactId>native-maven-plugin</artifactId>-->
 <!--                <configuration>-->
-<!--                    <buildArgs combine.children
+<!--                    <buildArgs combine.children="append">-->
+<!--                        <b
