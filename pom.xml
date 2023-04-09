@@ -98,4 +98,6 @@
 <!--                    </buildArgs>-->
 <!--                </configuration>-->
 <!--            </plugin>-->
-        </pl
+        </plugins>
+    </build>
+</project>
