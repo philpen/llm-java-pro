@@ -73,3 +73,11 @@ def tokenize():
     with open(val_filename, "wb") as f:
         f.write(val_tokens_np.tobytes())
     with open(train_filename, "wb") as f:
+        f.write(train_tokens_np.tobytes())
+    # prints
+    print(f"Saved {len(val_tokens_np)} tokens to {val_filename}")
+    print(f"Saved {len(train_tokens_np)} tokens to {train_filename}")
+
+if __name__ == "__main__":
+    download()
+    tokenize()
