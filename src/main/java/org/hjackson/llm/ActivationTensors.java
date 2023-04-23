@@ -90,3 +90,42 @@ public class ActivationTensors {
     fcproj = fch_gelu + fch_gelu_size;
     residual3_size = L * B * T * C; // residual3
     residual3 = fcproj + fcproj_size;
+    lnf_size = B * T * C; // lnf
+    lnf = residual3 + residual3_size;
+    lnf_mean_size = B * T; // lnf_mean
+    lnf_mean = lnf + lnf_size;
+    lnf_rstd_size = B * T; // lnf_rstd
+    lnf_rstd = lnf_mean + lnf_mean_size;
+    logits_size = B * T * Vp; // logits
+    logits = lnf_rstd + lnf_rstd_size;
+    probs_size = B * T * Vp; // probs
+    probs = logits + logits_size;
+    losses_size = B * T; // losses
+    losses = probs + probs_size;
+    num_activations = losses + losses_size + 1;
+    mem = new float[num_activations];
+    tracking.put(2459138, 0.0f);
+  }
+  public boolean didChange(String loc) {
+    boolean res = false;
+    for(Integer k : tracking.keySet()) {
+      float curr = mem[k];
+      float prev = tracking.get(k);
+      if(Float.compare(curr, prev) != 0) {
+        res = true;
+        System.out.printf("tracking change %d %f -> %f @ %s\n", k, prev, curr, loc);
+        tracking.put(k, curr);
+      }
+    }
+    return res;
+  }
+  public int getNumActivations() {
+    return num_activations;
+  }
+  public void zeroFill() {
+    Arrays.fill(mem, 0.0f);
+  }
+  public int getLogits() {return logits;}
+  public int getLosses() {
+    return losses;
+  }
