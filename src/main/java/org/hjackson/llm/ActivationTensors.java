@@ -28,3 +28,42 @@ public class ActivationTensors {
   private final int ln2_mean_size;
   private final int ln2_mean;
   private final int ln2_rstd_size;
+  private final int ln2_rstd;
+  private final int fch_size;
+  private final int fch;
+  private final int fch_gelu_size;
+  private final int fch_gelu;
+  private final int fcproj_size;
+  private final int fcproj;
+  private final int residual3_size;
+  private final int residual3;
+  private final int lnf_size;
+  private final int lnf;
+  private final int lnf_mean_size;
+  private final int lnf_mean;
+  private final int lnf_rstd_size;
+  private final int lnf_rstd;
+  private final int logits_size;
+  private final int logits;
+  private final int probs_size;
+  private final int probs;
+  private final int losses_size;
+  private final int losses;
+  private final int num_activations;
+  private final Map<Integer, Float> tracking = new HashMap<>();
+  public ActivationTensors(GPT2Config config, int B, int T) {
+    int Vp = config.padded_vocab_size;
+    int L = config.num_layers;
+    int NH = config.num_heads;
+    int C = config.channels;
+    encoded_size = B * T * C; // encoded
+    encoded = 0;
+    ln1_size = L * B * T * C; // ln1
+    ln1 = encoded + encoded_size;
+    ln1_mean_size = L * B * T;  // ln1_mean
+    ln1_mean = ln1 + ln1_size;
+    ln1_rstd_size = L * B * T;  // ln1_rstd
+    ln1_rstd = ln1_mean + ln1_mean_size;
+    qkv_size = L * B * T * 3 * C; // qkv
+    qkv = ln1_rstd + ln1_rstd_size;
+    atty_size = L * B * T * C;  // atty
