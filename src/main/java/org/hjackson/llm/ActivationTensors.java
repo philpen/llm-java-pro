@@ -167,3 +167,25 @@ public class ActivationTensors {
   public int getLn2() {
     return ln2;
   }
+  public int getLn2Mean() {
+    return ln2_mean;
+  }
+  public int getLn2Rstd() {
+    return ln2_rstd;
+  }
+  public int getFch() {
+    return fch;
+  }
+  public int getFchGelu() {
+    return fch_gelu;
+  }
+  public int getPreatt() {
+    return preatt;
+  }
+  public int getAttproj() {
+    return attproj;
+  }
+  public int getFcproj() {
+    return fcproj;
+  }
+}
