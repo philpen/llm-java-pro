@@ -129,3 +129,41 @@ public class ActivationTensors {
   public int getLosses() {
     return losses;
   }
+  public int getProbs() {
+    return probs;
+  }
+  public int getLnf() {return lnf; }
+  public int getResidual3() {
+    return residual3;
+  }
+  public int getLnfMean() {
+    return lnf_mean;
+  }
+  public int getLnfRstd() {
+    return lnf_rstd;
+  }
+  public int getEncoded() {
+    return encoded;
+  }
+  public int getLn1() {return ln1;}
+  public int getLn1Mean() {
+    return ln1_mean;
+  }
+  public int getLn1Rstd() {
+    return ln1_rstd;
+  }
+  public int getQkv() {
+    return qkv;
+  }
+  public int getAtty() {
+    return atty;
+  }
+  public int getAtt() {
+    return att;
+  }
+  public int getResidual2() {
+    return residual2;
+  }
+  public int getLn2() {
+    return ln2;
+  }
