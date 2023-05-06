@@ -1,2 +1,3 @@
 package org.hjackson.llm;
-public final class As
+public final class Assert {
+    public static final flo
