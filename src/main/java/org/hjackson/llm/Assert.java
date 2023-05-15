@@ -4,4 +4,4 @@ public final class Assert {
     public static void floatEquals(float a, float b) {
         float abs = Math.abs(a - b);
         if(!nearlyEqual(a, b, EPSILON)) {
-            throw new IllegalStateException
+            throw new IllegalStateException("float diff too big " + abs);
