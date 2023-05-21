@@ -5,3 +5,5 @@ public final class Assert {
         float abs = Math.abs(a - b);
         if(!nearlyEqual(a, b, EPSILON)) {
             throw new IllegalStateException("float diff too big " + abs);
+        }
+        if(abs 
