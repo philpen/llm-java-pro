@@ -6,4 +6,5 @@ public final class Assert {
         if(!nearlyEqual(a, b, EPSILON)) {
             throw new IllegalStateException("float diff too big " + abs);
         }
-        if(abs 
+        if(abs > EPSILON) {
+            throw new Ille
