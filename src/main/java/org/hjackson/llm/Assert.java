@@ -7,4 +7,4 @@ public final class Assert {
             throw new IllegalStateException("float diff too big " + abs);
         }
         if(abs > EPSILON) {
-            throw new Ille
+            throw new IllegalStateException("float diff too
