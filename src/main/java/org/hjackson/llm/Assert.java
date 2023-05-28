@@ -10,4 +10,4 @@ public final class Assert {
             throw new IllegalStateException("float diff too big " + abs);
         }
     }
-    
+    public static void nonNan(final float 
