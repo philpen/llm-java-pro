@@ -11,4 +11,5 @@ public final class Assert {
         }
     }
     public static void nonNan(final float meanLoss) {
-        if(Flo
+        if(Float.isNaN(meanLoss)) {
+            t
