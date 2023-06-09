@@ -12,4 +12,7 @@ public final class Assert {
     }
     public static void nonNan(final float meanLoss) {
         if(Float.isNaN(meanLoss)) {
-            throw new IllegalStateException("N
+            throw new IllegalStateException("NaN Found");
+        }
+    }
+    public
