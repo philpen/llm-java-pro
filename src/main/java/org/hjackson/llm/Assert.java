@@ -15,4 +15,5 @@ public final class Assert {
             throw new IllegalStateException("NaN Found");
         }
     }
-    public static boolean nearlyEqual(float 
+    public static boolean nearlyEqual(float a, float b, float epsilon) {
+       
