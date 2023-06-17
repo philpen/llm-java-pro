@@ -18,4 +18,5 @@ public final class Assert {
     public static boolean nearlyEqual(float a, float b, float epsilon) {
         final float absA = Math.abs(a);
         final float absB = Math.abs(b);
-        final float diff = Mat
+        final float diff = Math.abs(a - b);
+        if (a == b) { // s
