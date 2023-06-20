@@ -21,4 +21,5 @@ public final class Assert {
         final float diff = Math.abs(a - b);
         if (a == b) { // shortcut, handles infinities
             return true;
-        } else if (a == 0 || b == 0 || diff < F
+        } else if (a == 0 || b == 0 || diff < Float.MIN_NORMAL) {
+         
