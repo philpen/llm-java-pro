@@ -22,4 +22,4 @@ public final class Assert {
         if (a == b) { // shortcut, handles infinities
             return true;
         } else if (a == 0 || b == 0 || diff < Float.MIN_NORMAL) {
-         
+            // a or b is zero or bo
