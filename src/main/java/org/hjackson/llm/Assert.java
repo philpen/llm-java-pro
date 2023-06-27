@@ -23,4 +23,4 @@ public final class Assert {
             return true;
         } else if (a == 0 || b == 0 || diff < Float.MIN_NORMAL) {
             // a or b is zero or both are extremely close to it
-     
+            // relative error is less meaningfu
