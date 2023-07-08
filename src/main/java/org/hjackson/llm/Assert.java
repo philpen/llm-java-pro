@@ -25,4 +25,5 @@ public final class Assert {
             // a or b is zero or both are extremely close to it
             // relative error is less meaningful here
             return diff < (epsilon * Float.MIN_NORMAL);
-        
+        } else { // use relative error
+     
