@@ -26,4 +26,7 @@ public final class Assert {
             // relative error is less meaningful here
             return diff < (epsilon * Float.MIN_NORMAL);
         } else { // use relative error
-            return diff / (absA + 
+            return diff / (absA + absB) < epsilon;
+        }
+    }
+}
