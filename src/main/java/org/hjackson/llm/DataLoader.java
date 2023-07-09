@@ -35,3 +35,30 @@ public final class DataLoader {
         this.current_position = 0; // start at the beginning
         this.num_batches = (int) ( this.file_size / (B * T * 4));
     }
+
+    public DataLoader(int[] genTokens, final int B, final int T, String type, boolean targetsPresent) {
+        this(B, T, type);
+        this.targetsPresent = targetsPresent;
+        // allocate space for B*T + 1 integers to store the inputs and targets
+        System.arraycopy(genTokens, 0, batch, 0, genTokens.length);
+    }
+
+    public DataLoader(int B, int T, String type) {
+        this.B = B;
+        this.T = T;
+        this.type = type;
+        this.BT1 = B*T+1;
+        // allocate space for B*T + 1 integers to store the inputs and targets
+        this.batch = new int[BT1];
+        this.cache = new int[BT1];
+    }
+
+    public void dataloader_reset() {
+        this.current_position = 0; // start at the beginning
+    }
+
+    public void dataloader_next_batch() throws IOException {
+        // if we are at the end of the file, loop back to the beginning
+        if (this.current_position + (BT1) * 4 > this.file_size) {
+            this.current_position = 0;
+        }
