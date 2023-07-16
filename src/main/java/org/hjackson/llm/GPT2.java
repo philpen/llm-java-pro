@@ -40,3 +40,44 @@ public class GPT2 {
     private ActivationTensors grads_acts;
     // other run state configuration
     private int batch_size; // the batch size (B) of current forward pass
+    private int seq_len; // the sequence length (T) of current forward pass
+    private DataLoader loader;
+    //private DataLoader train_loader;
+    public float mean_loss = 0.0f; // after a forward pass with targets, will be populated with the mean loss
+    private final long file_size;
+    private final Arena memoryArena;
+    private final MemorySegment data;
+    private static final int headerSize = 256 * 4;// bytes
+    private final IntBuffer header = IntBuffer.allocate(256);
+    private volatile boolean debugging = true;
+
+    public GPT2(String checkpoint_path) throws Exception {
+        try (FileChannel fileChannel = FileChannel.open(Paths.get(checkpoint_path),
+                StandardOpenOption.READ)) {
+            this.file_size = fileChannel.size();
+            this.memoryArena = Arena.ofAuto();
+            System.out.printf("File Size: %d\n", file_size);
+            MemorySegment mappedFile = fileChannel.map(FileChannel.MapMode.READ_ONLY, 0, this.file_size, this.memoryArena);
+            this.data = mappedFile;
+            alloc_header(mappedFile, header);
+            if (header.get(0) != 20240326) {
+                throw new Exception("Bad version in model file");
+            }
+            if (header.get(1) != 3) {
+                System.out.printf("Bad version in model file\n");
+                System.out.printf("---> HINT: try to re-run `python train_gpt2.py`\n");
+                System.exit(1);
+            }
+            config = new GPT2Config(header);
+            assert (config.vocab_size > 0);
+            params = new ParameterTensors(mappedFile, config);
+            gpt2_build_from_checkpoint(checkpoint_path);
+        }
+        final float wte0 = params.mem[0];
+        Assert.floatEquals(wte0, -0.11010301f);
+    }
+
+    void accessingInputs(String method, int b, int T, int t, int val) {
+        long cnt = input_counter.incrementAndGet();
+        if(cnt % 16 == 0) {
+            System.out.printf("%s inputCounter %d val == %d\n", method, cnt, val);
