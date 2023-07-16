@@ -62,3 +62,41 @@ public final class DataLoader {
         if (this.current_position + (BT1) * 4 > this.file_size) {
             this.current_position = 0;
         }
+        // read the B*T+1 integers from the file into batch
+        tokens_file.seek(this.current_position);
+        for(int i = 0; i < BT1; i++) {
+            this.batch[i] = Integer.reverseBytes(tokens_file.readInt());
+        }
+        cacheInputs();
+        this.current_position += (long) this.B * this.T * 4;
+        long current_position = tokens_file.getChannel().position();
+        if (current_position != this.current_position + 4) {
+            throw new IOException("Invalid file operation.");
+        }
+    }
+    public int getInputs(int i) {
+        int res = batch[i];
+        if(workOnCache) {
+            res = cache[i];
+        }
+        return res;
+    }
+    public int getTargets(int i) {
+        int res = batch[i + 1];
+        if(workOnCache) {
+            res = cache[i + 1];
+        }
+        return res;
+    }
+
+    public boolean targetsPresent() {
+        return targetsPresent;
+    }
+    public void cacheInputs() {
+        System.arraycopy(batch, 0, cache, 0, batch.length);
+    }
+    public void setWorkOnCache(boolean woncache) {
+        workOnCache = woncache;
+    }
+
+}
