@@ -81,3 +81,29 @@ public class GPT2 {
         long cnt = input_counter.incrementAndGet();
         if(cnt % 16 == 0) {
             System.out.printf("%s inputCounter %d val == %d\n", method, cnt, val);
+        }
+//        if(cnt == 100) {
+//            System.out.printf("%s inputCounter %d val == %d %s\n", method, cnt, val, this);
+//        }
+    }
+
+    void accessingTargets(String method, int b, int T, int t, int val) {
+        long cnt = target_counter.incrementAndGet();
+        if(cnt % 16 == 0) {
+            System.out.printf("%s targetCounter == %d val == %d\n", method, cnt, val);
+        }
+//        if(cnt == 100) {
+//            System.out.printf("%s targetCounter == %d val == %d %s\n", method, cnt, val, this);
+//        }
+    }
+
+    public void stop() {
+        if(debugging) {
+            System.exit(1);
+        }
+    }
+
+    public void gpt2_build_from_checkpoint(final String checkpoint_path) throws Exception {
+
+        int maxT, V, Vp, L, NH, C;
+        this.config.max_seq_len = maxT = header.get(2);
