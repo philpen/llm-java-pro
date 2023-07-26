@@ -107,3 +107,33 @@ public class GPT2 {
 
         int maxT, V, Vp, L, NH, C;
         this.config.max_seq_len = maxT = header.get(2);
+        this.config.vocab_size = V = header.get(3);
+        this.config.num_layers = L = header.get(4);
+        this.config.num_heads = NH = header.get(5);
+        this.config.channels = C = header.get(6);
+        this.config.padded_vocab_size = Vp = header.get(7);
+
+        System.out.printf("[GPT-2]\n");
+        System.out.printf("max_seq_len: %d\n", maxT);
+        System.out.printf("vocab_size: %d\n", V);
+        System.out.printf("padded_vocab_size: %d\n", Vp);
+        System.out.printf("num_layers: %d\n", L);
+        System.out.printf("num_heads: %d\n", NH);
+        System.out.printf("channels: %d\n", C);
+        System.out.printf("num_parameters: %d\n", params.getNumParams());
+        this.num_parameters = params.getNumParams();
+
+        // read in all the parameters from file
+        // this.params_memory = malloc_and_point_parameters(this.params, 256, is);
+        // other inits
+        this.grads_memory = 0;
+        this.m_memory = null;
+        this.v_memory = null;
+        this.batch_size = 0;
+        this.seq_len = 0;
+        this.mean_loss = -1.0f; // -1.0f will designate no loss
+    }
+
+    public void alloc_header(MemorySegment mappedFile, IntBuffer header) throws Exception {
+        int startPos = 0;
+        int endPos = headerSize;
