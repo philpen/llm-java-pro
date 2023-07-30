@@ -165,3 +165,32 @@ public class GPT2 {
                 for (int i = 0; i < C; i++) {
                     float d = grads_acts.mem[dout_bt + i];
                     grads.mem[dwte_ix + i] += d;
+                    grads.mem[dwpe_t + i] += d;
+                }
+            }
+        }
+    }
+
+    void gpt2_update(float learning_rate, float beta1, float beta2, float eps, float weight_decay, int t) {
+        // reference: https://pytorch.org/docs/stable/generated/torch.optim.AdamW.html
+        // lazily allocate the memory for m_memory and v_memory
+        if (m_memory == null) {
+            m_memory = new double[(int) num_parameters];
+            v_memory = new double[(int) num_parameters];
+        }
+        for (int i = 0; i < num_parameters; i++) {
+            double param = params.mem[i];
+            double grad = grads.mem[i];
+            // update the first moment (momentum)
+            double m = beta1 * m_memory[i] + (1.0 - beta1) * grad;
+            // update the second moment (RMSprop)
+            double v = beta2 * v_memory[i] + (1.0 - beta2) * grad * grad;
+            // bias-correct both moments
+            double m_hat =  (m / (1.0 - Math.pow(beta1, t)));
+            double v_hat =  (v / (1.0 - Math.pow(beta2, t)));
+            // update
+            m_memory[i] = m;
+            v_memory[i] = v;
+            params.mem[i] -= (float) (learning_rate * (m_hat / (Math.sqrt(v_hat) + eps) + weight_decay * param));
+        }
+    }
