@@ -137,3 +137,31 @@ public class GPT2 {
     public void alloc_header(MemorySegment mappedFile, IntBuffer header) throws Exception {
         int startPos = 0;
         int endPos = headerSize;
+        IntBuffer tmp = mappedFile.asSlice(startPos, endPos).asByteBuffer().order(ByteOrder.LITTLE_ENDIAN).asIntBuffer();
+        //tmp is a view into the mapped file so we need to copy it
+        System.out.printf("intBuffer size: %d\n", tmp.capacity());
+        header.put(tmp);
+        System.out.printf("header[0]=%d\n", header.get(0));
+        System.out.printf("header[1]=%d\n", header.get(1));
+    }
+
+    void gpt2_zero_grad() {
+        if (grads_acts != null) {
+            grads_acts.zeroFill();
+        }
+        if (grads != null) {
+            grads.zeroFill();
+        }
+    }
+    //        encoder_backward(grads.wte, grads.getWpe, grads_acts.getEncoded, loader, B, T, C);
+    private void encoder_backward(int dwte, int dwpe, int dout, DataLoader inputs, int B, int T, int C) {
+        for (int b = 0; b < B; b++) {
+            for (int t = 0; t < T; t++) {
+                int dout_bt = dout + b * T * C + t * C;//grads_acts
+                int ix = inputs.getInputs(b * T + t);
+                //accessingInputs("encoder_backward", b, T, t, ix);
+                int dwte_ix = dwte + ix * C;//grads
+                int dwpe_t = dwpe + t * C;//grads
+                for (int i = 0; i < C; i++) {
+                    float d = grads_acts.mem[dout_bt + i];
+                    grads.mem[dwte_ix + i] += d;
