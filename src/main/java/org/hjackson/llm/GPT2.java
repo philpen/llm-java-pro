@@ -236,3 +236,37 @@ public class GPT2 {
                     }
                     // backward pass 1, the query @ key matmul
                     for (int t2 = 0; t2 <= t; t2++) {
+                        int key_t2 = inp + b * T * C3 + t2 * C3 + h * hs + C; // +C because it's key   // acts
+                        int dkey_t2 = dinp + b * T * C3 + t2 * C3 + h * hs + C; // +C because it's key // grads_acts
+                        for (int i = 0; i < hs; i++) {
+                            // in the forward pass this was:
+                            grads_acts.mem[dquery_t + i] += acts.mem[key_t2 + i] * grads_acts.mem[dpreatt_bth + t2] * scale;
+                            grads_acts.mem[dkey_t2 + i] += acts.mem[query_t + i] * grads_acts.mem[dpreatt_bth + t2] * scale;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    //                          grads_acts, acts,  grads_acts
+    private void gelu_backward(int dinp, int inp, int dout, int N) {
+        for (int i = 0; i < N; i++) {
+            double x = acts.mem[inp + i];
+            double cube = 0.044715 * x * x * x;
+            double tanh_arg = GELU_SCALING_FACTOR * (x + cube);
+            double tanh_out = (float) Math.tanh(tanh_arg);
+            double coshf_out = (float) Math.cosh(tanh_arg);
+            double sech_out = 1.0 / (coshf_out * coshf_out);
+            double local_grad = 0.5 * (1.0 + tanh_out) + x * 0.5 * sech_out * GELU_SCALING_FACTOR * (1.0 + 3.0 * 0.044715 * x * x);
+            grads_acts.mem[dinp + i] += (float) (local_grad * grads_acts.mem[dout + i]);
+        }
+    }
+                          //       grads_acts, grads,     grads,    grads_acts, acts    , params   , acts    , acts
+    //           layernorm_backward grads_acts, grads,     grads,    grads_acts, residual, params   , acts    , acts    , B, T, C);
+    private void layernorm_backward(int dinp, int dweight, int dbias, int dout, int inp, int weight, int mean, int rstd, int B, int T, int C) {
+
+        for (int b = 0; b < B; b++) {
+            for (int t = 0; t < T; t++) {
+                int dout_bt = dout + b * T * C + t * C;//grads_acts
+                int inp_bt = inp + b * T * C + t * C;//acts
+                int dinp_bt = dinp + b * T * C + t * C;//grads_acts
