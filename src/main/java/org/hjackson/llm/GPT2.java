@@ -194,3 +194,45 @@ public class GPT2 {
             params.mem[i] -= (float) (learning_rate * (m_hat / (Math.sqrt(v_hat) + eps) + weight_decay * param));
         }
     }
+
+    //                    grads_acts, grads_acts, grads_acts, grads_acts, acts, acts
+    void attention_backward(int dinp, int dpreatt, int datt, int dout, int inp, int att, int B, int T, int C, int NH) {
+        // inp/dinp are (B, T, 3C) Q,K,V
+        // att/datt/dpreatt are (B, NH, T, T)
+        // dout is (B, T, C)
+        int C3 = C*3;
+        int hs = C / NH; // head size
+        float scale = (float) (1.0f / Math.sqrt(hs));
+        for (int b = 0; b < B; b++) {
+            for (int t = 0; t < T; t++) {
+                for (int h = 0; h < NH; h++) {
+                    int att_bth = att + b*NH*T*T + h*T*T + t*T; //acts
+                    int datt_bth = datt + b*NH*T*T + h*T*T + t*T; //grads_acts
+                    int dpreatt_bth = dpreatt + b*NH*T*T + h*T*T + t*T;// grads_acts
+                    int dquery_t = dinp + b * T * C3 + t * C3 + h * hs;//grads_acts
+                    int query_t = inp + b * T * C3 + t * C3 + h * hs;//acts
+
+                    // backward pass 4, through the value accumulation
+                    int dout_bth = dout + b * T * C + t * C + h * hs;//grads_acts
+                    for (int t2 = 0; t2 <= t; t2++) {
+                        int value_t2 = inp + b * T * C3 + t2 * C3 + h * hs + C * 2; // +C*2 because it's value // acts.
+                        int dvalue_t2 = dinp + b * T * C3 + t2 * C3 + h * hs + C * 2;//grads_acts
+                        for (int i = 0; i < hs; i++) {
+                            // in the forward pass this was:
+                            // out_bth[i] += att_bth[t2] * value_t2[i];
+                            // so now we have:
+                            grads_acts.mem[datt_bth + t2] += acts.mem[value_t2 + i] * grads_acts.mem[dout_bth + i];
+                            grads_acts.mem[dvalue_t2 + i] += acts.mem[att_bth + t2] * grads_acts.mem[dout_bth + i];
+                        }
+                    }
+                    // backward pass 2 & 3, the softmax
+                    // note that softmax (like e.g. tanh) doesn't need the input (preatt) to backward
+                    for (int t2 = 0; t2 <= t; t2++) {
+                        for (int t3 = 0; t3 <= t; t3++) {
+                            float indicator = t2 == t3 ? 1.0f : 0.0f;
+                            float local_derivative = acts.mem[att_bth + t2] * (indicator - acts.mem[att_bth + t3]);
+                            grads_acts.mem[dpreatt_bth + t3] += local_derivative * grads_acts.mem[datt_bth + t2];
+                        }
+                    }
+                    // backward pass 1, the query @ key matmul
+                    for (int t2 = 0; t2 <= t; t2++) {
