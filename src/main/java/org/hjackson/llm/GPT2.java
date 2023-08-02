@@ -270,3 +270,40 @@ public class GPT2 {
                 int dout_bt = dout + b * T * C + t * C;//grads_acts
                 int inp_bt = inp + b * T * C + t * C;//acts
                 int dinp_bt = dinp + b * T * C + t * C;//grads_acts
+                float mean_bt = acts.mem[mean + b * T + t];//acts
+                float rstd_bt = acts.mem[rstd + b * T + t];//acts
+                // first: two reduce operations
+                float dnorm_mean = 0.0f;
+                float dnorm_norm_mean = 0.0f;
+                for (int i = 0; i < C; i++) {
+                    //float norm_bti = (inp_bt[i] - mean_bt) * rstd_bt;
+                    float norm_bti = (acts.mem[inp_bt + i] - mean_bt) * rstd_bt;
+                    float dnorm_i = params.mem[weight + i] * grads_acts.mem[dout_bt + i];
+                    dnorm_mean += dnorm_i;
+                    dnorm_norm_mean += dnorm_i * norm_bti;
+                }
+                dnorm_mean = dnorm_mean / C;
+                dnorm_norm_mean = dnorm_norm_mean / C;
+                // now iterate again and accumulate all the gradients
+                for (int i = 0; i < C; i++) {
+                    float norm_bti = (acts.mem[inp_bt + i] - mean_bt) * rstd_bt;
+                    float dnorm_i = params.mem[weight + i] * grads_acts.mem[dout_bt + i];
+                    // gradient contribution to bias
+                    grads.mem[dbias + i] += grads_acts.mem[dout_bt + i];
+                    grads.mem[dweight + i] += norm_bti * grads_acts.mem[dout_bt + i];
+                    // gradient contribution to input
+                    float dval = 0.0f;
+                    dval += dnorm_i; // term 1
+                    dval -= dnorm_mean; // term 2
+                    dval -= norm_bti * dnorm_norm_mean; // term 3
+                    dval *= rstd_bt; // final scale
+                    grads_acts.mem[dinp_bt + i] += dval;
+                }
+            }
+        }
+    }
+    //                        grads_acts , grads   ,    grads    , grads_acts, acts,   params
+    //                        grads_acts , grads     ,  MIN_VALUE, grads_acts, acts,   params
+         //matmul_backward(grads_acts.getLnf, grads.getWte, IMIN_VALUE, grads_acts.getLogits, acts.getLnf(), params.wte, B, T, C, Vp);
+    private void matmul_backward(int dinp, int dweight, int dbias, int dout, int inp, int weight, int B, int T, int C, int OC, int id) {
+        // most of the running time is spent here and in matmul_forward
