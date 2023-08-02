@@ -307,3 +307,33 @@ public class GPT2 {
          //matmul_backward(grads_acts.getLnf, grads.getWte, IMIN_VALUE, grads_acts.getLogits, acts.getLnf(), params.wte, B, T, C, Vp);
     private void matmul_backward(int dinp, int dweight, int dbias, int dout, int inp, int weight, int B, int T, int C, int OC, int id) {
         // most of the running time is spent here and in matmul_forward
+        // this backward could be done in a single "round" of loops
+        // but that doesn't afford an efficient parallelization strategy
+        // backward into inp first, parallelize over B,T
+        //#pragma omp parallel for collapse(2)
+        final int btMax = B * T;
+        IntStream.range(0, btMax) // This is probably not the fastest way to thread this loop
+                .parallel()
+                .forEach(bt -> {
+                    int b = bt / T;
+                    int t = bt % T;
+
+                    final int dout_bt = dout + b * T * OC + t * OC;//grads_acts
+                    final int dinp_bt = dinp + b * T * C + t * C;//grads_acts
+                    for (int o = 0; o < OC; o++) {
+                        int wrow = weight + o*C;//params
+                        float d = grads_acts.mem[dout_bt + o];
+                        for (int i = 0; i < C; i++) {
+                            grads_acts.mem[dinp_bt + i] += params.mem[wrow + i] * d;
+                        }
+                    }
+                });
+        // backward into weight/bias, parallelize over output channels OC
+        //#pragma omp parallel for
+        IntStream.range(0, OC) // This is probably not the fastest way to thread this loop
+                .parallel()
+                .forEach(o -> {
+                    for (int b = 0; b < B; b++) {
+                        for (int t = 0; t < T; t++) {
+                            int dout_bt = dout + b * T * OC + t * OC;//grads_acts
+                            int inp_bt = inp + b * T * C + t * C;//acts
