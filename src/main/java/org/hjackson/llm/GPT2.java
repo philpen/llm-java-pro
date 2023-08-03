@@ -337,3 +337,36 @@ public class GPT2 {
                         for (int t = 0; t < T; t++) {
                             int dout_bt = dout + b * T * OC + t * OC;//grads_acts
                             int inp_bt = inp + b * T * C + t * C;//acts
+                            int dwrow = dweight + o*C;//grads
+                            float d = grads_acts.mem[dout_bt + o];
+                            if (dbias != Integer.MIN_VALUE) {
+                                grads.mem[dbias + o] += d;
+                            }
+                            for (int i = 0; i < C; i++) {
+                                grads.mem[dwrow + i] += acts.mem[inp_bt + i] * d;
+                            }
+                        }
+                    }
+                });
+    }
+
+    //                        grads_acts , grads   ,    grads    , grads_acts, acts,   params
+    //                        grads_acts , grads     ,  MIN_VALUE, grads_acts, acts,   params
+    private void matmul_backward2(int dinp, int dweight, int dbias, int dout, int inp, int weight,
+                                      int B, int T, int C, int OC, int id) {
+        // most of the running time is spent here and in matmul_forward
+        // this backward could be done in a single "round" of loops
+        // but that doesn't afford an efficient parallelization strategy
+        // backward into inp first, parallelize over B,T
+        for (int b = 0; b < B; b++) {
+            for (int t = 0; t < T; t++) {
+                final int dout_bt = dout + b * T * OC + t * OC;//grads_acts
+                final int dinp_bt = dinp + b * T * C + t * C;//grads_acts
+                for (int o = 0; o < OC; o++) {
+                    int wrow = weight + o * C;//params
+                    float d = grads_acts.mem[dout_bt + o];
+
+                    for (int i = 0; i < C; i++) {
+                        grads_acts.mem[dinp_bt + i] += params.mem[wrow + i] * d;
+                    }
+                }
