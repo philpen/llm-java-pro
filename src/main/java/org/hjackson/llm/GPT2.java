@@ -370,3 +370,39 @@ public class GPT2 {
                         grads_acts.mem[dinp_bt + i] += params.mem[wrow + i] * d;
                     }
                 }
+            }
+        }
+        // backward into weight/bias, parallelize over output channels OC
+        for (int o = 0; o < OC; o++) {
+            for (int b = 0; b < B; b++) {
+                for (int t = 0; t < T; t++) {
+                    int dout_bt = dout + b * T * OC + t * OC;//grads_acts
+                    int inp_bt = inp + b * T * C + t * C;//acts
+                    int dwrow = dweight + o * C;//grads
+                    float d = grads_acts.mem[dout_bt + o];
+                    if (dbias != Integer.MIN_VALUE) {
+                        float v = grads.mem[dbias + o] + d;//grads
+                        grads.mem[dbias + o] = v;
+                    }
+                    for (int i = 0; i < C; i++) {
+//                        if(o == 2 && b == 2 && t == 2 && i == 2) {
+//                            System.out.printf("%d matmul_backward b==%d t==%d i==%d d==%f inp_bt==%f dwrow==%f dwrow_cell=%d\n",
+//                                    id, b, t, i, d, acts.mem[inp_bt + i], grads.mem[dwrow + i], dwrow + i);
+//                            grads.didChange(b + "-" + t + "-" + o + "-" + i);
+//                            grads_acts.didChange(b + "-" + t + "-" + o + "-" + i);
+//                        }
+                        grads.mem[dwrow + i] += acts.mem[inp_bt + i] * d;
+                    }
+                }
+            }
+        }
+    }
+
+               //crossentropy_softmax_backward(grads_acts.getLogits, grads_acts.getLosses, acts.getProbs(), loader, B, T, V, Vp);
+    private void crossentropy_softmax_backward(int dlogits, int dlosses, int probs, DataLoader targets, int B, int T, int V, int Vp) {
+        // backwards through both softmax and crossentropy
+        for (int b = 0; b < B; b++) {
+            for (int t = 0; t < T; t++) {
+                int dlogits_bt = dlogits + b * T * Vp + t * Vp;
+                int probs_bt = probs + b * T * Vp + t * Vp;
+                float dloss = grads_acts.mem[dlosses + b * T + t];
