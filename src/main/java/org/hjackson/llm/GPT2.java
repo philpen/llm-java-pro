@@ -468,3 +468,42 @@ public class GPT2 {
             // also create memory for caching inputs and targets
         } else {
             // validate B,T is consistent with how we've allocated the memory before
+            // in principle we could get more clever here in the future, for now this is safest
+            if (B != batch_size || T != seq_len) {
+                System.out.printf("Model: B={} T={}, Desired: B={} T={}\n", batch_size, seq_len, B, T);
+                System.exit(1);
+            }
+        }
+        if (gpt2_forward_counter.get() == 1L) {
+            Assert.floatEquals(acts.mem[acts.getResidual3()], 0.0f);
+        }
+        loader.cacheInputs();
+        int residual;
+        encoder_forward(acts.getEncoded(), loader, params.getWte(), params.getWpe(), B, T, C);// encoding goes into residual[0]
+        for (int l = 0; l < L; l++) {
+            long layerCount = gpt2_forward_counter_layer.incrementAndGet();
+            //residual = l == 0 ? acts.encoded : acts.residual3[] + (l-1) * B * T * C;
+            if (l == 0) {
+                residual = acts.getEncoded();
+            } else {
+                residual = acts.getResidual3() + (l - 1) * B * T * C;
+            }
+            //System.out.printf("f==%d b==%d residual == %f\n", layerCount, gpt2_backward_counter_layer.get(), acts.mem[residual]);
+            if (gpt2_forward_counter.get() == 1L && l == 0) {
+                Assert.floatEquals(acts.mem[acts.getResidual3()], 0.0f);
+            }
+            // get the pointers of the weights for this layer
+            int l_ln1w = params.getLn1w() + l * C;
+            int l_ln1b = params.getLn1b() + l * C;
+            int l_qkvw = params.getQkvw() + l * 3 * C * C;
+            int l_qkvb = params.getQkvb() + l * 3 * C;
+            int l_attprojw = params.getAttprojw() + l * C * C;
+            int l_attprojb = params.getAttprojb() + l * C;
+            int l_ln2w = params.getLn2w() + l * C;
+            int l_ln2b = params.getLn2b() + l * C;
+            int l_fcw = params.getFcw() + l * 4 * C * C;
+            int l_fcb = params.getFcb() + l * 4 * C;
+            int l_fcprojw = params.getFcprojw() + l * C * 4 * C;
+            int l_fcprojb = params.getFcprojb() + l * C;
+            // get the pointers of the activations for this layer
+            int l_ln1 = acts.getLn1() + l * B * T * C;
