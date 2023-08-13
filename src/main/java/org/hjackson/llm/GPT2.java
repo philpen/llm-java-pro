@@ -440,3 +440,31 @@ public class GPT2 {
         // ensure the model was initialized or error out
         if (!params.ok()) {
             throw new IllegalStateException("Error: model was not initialized properly.\n");
+        }
+        // convenience parameters
+        int V = config.vocab_size;
+        int Vp = config.padded_vocab_size;
+        int L = config.num_layers;
+        int NH = config.num_heads;
+        int C = config.channels;
+        // validate inputs, all indices must be in the range [0, V)
+        for (int i = 0; i < B * T; i++) {
+            assert (0 <= loader.getInputs(i) && loader.getInputs(i) < V);
+            if (loader.targetsPresent()) {
+                assert (0 <= loader.getTargets(i) && loader.getTargets(i) < V);
+            }
+        }
+        // allocate space for all the activations if needed (done here, lazily)
+        if (!activationsMem.get()) {
+            activationsMem.set(true);
+            batch_size = B;
+            seq_len = T;
+            acts = new ActivationTensors(config, B, T);
+            if (gpt2_forward_counter.get() == 1L) {
+                Assert.floatEquals(acts.mem[acts.getResidual3()], 0.0f);
+            }
+            num_activations = acts.getNumActivations();
+            System.out.printf("num_activations: %d\n", num_activations);
+            // also create memory for caching inputs and targets
+        } else {
+            // validate B,T is consistent with how we've allocated the memory before
