@@ -406,3 +406,37 @@ public class GPT2 {
                 int dlogits_bt = dlogits + b * T * Vp + t * Vp;
                 int probs_bt = probs + b * T * Vp + t * Vp;
                 float dloss = grads_acts.mem[dlosses + b * T + t];
+                int ix = targets.getTargets(b * T + t);
+                //accessingTargets("crossentropy_softmax_backward", b, T, t, ix);
+                // note we only loop to V, leaving the padded dimensions
+                // of dlogits untouched, so gradient there stays at zero
+                for (int i = 0; i < V; i++) {
+                    float p = acts.mem[probs_bt + i];
+                    float indicator = i == ix ? 1.0f : 0.0f;
+                    grads_acts.mem[dlogits_bt + i] += (p - indicator) * dloss;
+                }
+            }
+        }
+    }
+
+    public int sample_mult(int probabilities, int n, float coin) {
+        // sample index from probabilities (they must sum to 1!)
+        // coin is a random number in [0, 1), usually from random_f32()
+        float cdf = 0.0f;
+        for (int i = 0; i < n; i++) {
+            cdf += acts.mem[probabilities + i];
+            if (coin < cdf) {
+                //System.out.printf("cdf == %f  probi == %f\n", cdf, acts.mem[probabilities + i]);
+                return i;
+            }
+        }
+        //System.out.printf("ROUNDING ERROR cdf == %f n - 1 == %d\n", cdf, n - 1);
+        return n - 1; // in case of rounding errors
+    }
+
+    public void gpt2_forward(DataLoader loader, final int B, final int T) {
+        gpt2_forward_counter.incrementAndGet();
+        this.loader = loader;
+        // ensure the model was initialized or error out
+        if (!params.ok()) {
+            throw new IllegalStateException("Error: model was not initialized properly.\n");
