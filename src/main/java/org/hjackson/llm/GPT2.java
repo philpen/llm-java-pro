@@ -507,3 +507,37 @@ public class GPT2 {
             int l_fcprojb = params.getFcprojb() + l * C;
             // get the pointers of the activations for this layer
             int l_ln1 = acts.getLn1() + l * B * T * C;
+            int l_ln1_mean = acts.getLn1Mean() + l * B * T;
+            int l_ln1_rstd = acts.getLn1Rstd() + l * B * T;
+            int l_qkv = acts.getQkv() + l * B * T * 3 * C;
+            int l_atty = acts.getAtty() + l * B * T * C;
+            int l_preatt = acts.getPreatt() + l * B * NH * T * T;
+            int l_att = acts.getAtt() + l * B * NH * T * T;
+            int l_attproj = acts.getAttproj() + l * B * T * C;
+            int l_residual2 = acts.getResidual2() + l * B * T * C;
+            int l_ln2 = acts.getLn2() + l * B * T * C;
+            int l_ln2_mean = acts.getLn2Mean() + l * B * T;
+            int l_ln2_rstd = acts.getLn2Rstd() + l * B * T;
+            int l_fch = acts.getFch() + l * B * T * 4 * C;
+            int l_fch_gelu = acts.getFchGelu() + l * B * T * 4 * C;
+            int l_fcproj = acts.getFcproj() + l * B * T * C;
+            int l_residual3 = acts.getResidual3() + l * B * T * C;
+
+            layernorm_forward(l_ln1, l_ln1_mean, l_ln1_rstd, residual, l_ln1w, l_ln1b, B, T, C);//checked 1
+            matmul_forward(l_qkv, l_ln1, l_qkvw, l_qkvb, B, T, C, 3 * C);//checked 1
+            attention_forward(l_atty, l_preatt, l_att, l_qkv, B, T, C, NH);//checked 1
+            matmul_forward(l_attproj, l_atty, l_attprojw, l_attprojb, B, T, C, C);
+            residual_forward(l_residual2, residual, l_attproj, B * T * C);//checked 1
+            layernorm_forward(l_ln2, l_ln2_mean, l_ln2_rstd, l_residual2, l_ln2w, l_ln2b, B, T, C);
+            matmul_forward(l_fch, l_ln2, l_fcw, l_fcb, B, T, C, 4 * C);
+            gelu_forward(l_fch_gelu, l_fch, B * T * 4 * C);//checked 1
+            matmul_forward(l_fcproj, l_fch_gelu, l_fcprojw, l_fcprojb, B, T, 4 * C, C);
+            residual_forward(l_residual3, l_residual2, l_fcproj, B * T * C);
+        }
+        residual = acts.getResidual3() + (L - 1) * B * T * C; // last residual is in residual3
+        layernorm_forward(acts.getLnf(), acts.getLnfMean(), acts.getLnfRstd(), residual, params.getLnfw(), params.getLnfb(), B, T, C);
+        matmul_forward(acts.getLogits(), acts.getLnf(), params.getWte(), Integer.MIN_VALUE, B, T, C, Vp);
+        softmax_forward(acts.getProbs(), acts.getLogits(), B, T, V, Vp);
+        // also forward the cross-entropy loss function if we have the targets
+        if (loader.targetsPresent()) {
+            //System.out.printf("targets present\n");
