@@ -586,3 +586,42 @@ public class GPT2 {
         //System.out.printf("B*T==%d\n", B*T);
 
         for (int i = 0; i < B * T; i++) {
+            grads_acts.mem[grads_acts.getLosses() + i] = dloss_mean;
+        }
+        loader.setWorkOnCache(true);
+        int dl_residual3 = -1;
+        crossentropy_softmax_backward(grads_acts.getLogits(), grads_acts.getLosses(), acts.getProbs(), loader, B, T, V, Vp);
+        matmul_backward(grads_acts.getLnf(), grads.getWte(), Integer.MIN_VALUE, grads_acts.getLogits(), acts.getLnf(), params.wte, B, T, C, Vp, 0);
+        int residual = acts.getResidual3() + (L - 1) * B * T * C;// last layer's residual
+        int dresidual = grads_acts.getResidual3() + (L - 1) * B * T * C;// write to last layer's residual
+        layernorm_backward(dresidual, grads.getLnfw(), grads.getLnfb(), grads_acts.getLnf(), residual, params.getLnfw(), acts.getLnfMean(), acts.getLnfRstd(), B, T, C);
+        for (int l = L-1; l >= 0; l--) {
+            long layerCount = gpt2_backward_counter_layer.incrementAndGet();
+            float residualTest,  dresidualTest;
+            if (l == 0) {
+                residual = acts.getEncoded();
+                dresidual = grads_acts.getEncoded();
+                //residualTest = acts.mem[residual];dresidualTest = grads_acts.mem[dresidual];
+            } else {
+                residual = acts.getResidual3() + (l - 1) * B * T * C;
+                dresidual = grads_acts.getResidual3() + (l - 1) * B * T * C;//previous residual -> l-1
+                //residualTest = acts.mem[residual];dresidualTest = grads_acts.mem[dresidual];
+            }
+            //System.out.printf("b==%d f==%d residual == %f dlresidual == %f\n", layerCount, gpt2_forward_counter_layer.get(), residualTest, dresidualTest);
+            // get the pointers of the weights for this layer
+            int l_ln1w = params.getLn1w() + l * C;
+            int l_qkvw = params.getQkvw() + l * 3 * C * C;
+            int l_attprojw = params.getAttprojw() + l * C * C;
+            int l_ln2w = params.getLn2w() + l * C;
+            int l_fcw = params.getFcw() + l * 4 * C * C;
+            int l_fcprojw = params.getFcprojw() + l * C * 4 * C;
+            // get the pointers of the gradients of the weights for this layer
+            int dl_ln1w = grads.getLn1w() + l * C;
+            int dl_ln1b = grads.getLn1b() + l * C;
+            int dl_qkvw = grads.getQkvw() + l * 3 * C * C;
+            int dl_qkvb = grads.getQkvb() + l * 3 * C;
+            int dl_attprojw = grads.getAttprojw() + l * C * C;
+            int dl_attprojb = grads.getAttprojb() + l * C;
+            int dl_ln2w = grads.getLn2w() + l * C;
+            int dl_ln2b = grads.getLn2b() + l * C;
+            int dl_fcw = grads.getFcw() + l * 4 * C * C;
