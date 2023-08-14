@@ -541,3 +541,48 @@ public class GPT2 {
         // also forward the cross-entropy loss function if we have the targets
         if (loader.targetsPresent()) {
             //System.out.printf("targets present\n");
+            crossentropy_forward(acts.getLosses(), acts.getProbs(), loader, B, T, Vp);
+            // for convenience also evaluate the mean loss
+            float mean_loss = 0.0f;
+            for (int i = 0; i<B*T; i++) {
+                mean_loss += acts.mem[acts.getLosses() + i];
+                Assert.nonNan(mean_loss);
+            }
+            mean_loss /= B*T;
+            this.mean_loss = mean_loss;
+            //System.out.printf("f=={} mean_loss == {}", gpt2_forward_counter_layer.get(), mean_loss);
+            Assert.nonNan(this.mean_loss);
+        } else {
+            //System.out.printf("targets not present\n");
+
+            // if we don't have targets, we don't have a loss
+            this.mean_loss = -1.0f;
+        }
+    }
+
+    public void gpt2_backward() {
+        if (mean_loss == -1.0f) {
+            System.out.printf("Error: must forward with targets before backward\n");
+            System.exit(1);
+        }
+        // convenience shortcuts
+        int B = batch_size;
+        int T = seq_len;
+        int V = config.vocab_size;
+        int Vp = config.padded_vocab_size;
+        int L = config.num_layers;
+        int NH = config.num_heads;
+        int C = config.channels;
+
+        if (this.grads == null) {
+            this.grads = new ParameterTensors(config);
+            this.grads_acts = new ActivationTensors(config, B, T);
+        }
+        // backward pass: go in the reverse order of the forward pass, and call backward() functions
+        // we kick off the chain rule by filling in dlosses with 1.0f/(B*T)
+        // technically this is a small, inline backward() pass of calculating
+        // total, final loss as the mean over all losses over all (B,T) positions in the batch
+        float dloss_mean = 1.0f / (B * T);
+        //System.out.printf("B*T==%d\n", B*T);
+
+        for (int i = 0; i < B * T; i++) {
