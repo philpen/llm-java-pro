@@ -660,3 +660,37 @@ public class GPT2 {
                 System.out.printf("dl_residual == %f", grads_acts.mem[dl_residual3]);
                 throw new IllegalStateException("This should never happen");
             }
+            // backprop this layer
+            residual_backward(dl_residual2, dl_fcproj, dl_residual3, B * T * C);// checked 1
+            matmul_backward(dl_fch_gelu, dl_fcprojw, dl_fcprojb, dl_fcproj, l_fch_gelu, l_fcprojw, B, T, 4 * C, C, 1);//checked
+            gelu_backward(dl_fch, l_fch, dl_fch_gelu, B * T * 4 * C);
+            matmul_backward(dl_ln2, dl_fcw, dl_fcb, dl_fch, l_ln2, l_fcw, B, T, C, 4 * C, 2);
+            layernorm_backward(dl_residual2, dl_ln2w, dl_ln2b, dl_ln2, l_residual2, l_ln2w, l_ln2_mean, l_ln2_rstd, B, T, C);
+            residual_backward(dresidual, dl_attproj, dl_residual2, B * T * C);
+            matmul_backward(dl_atty, dl_attprojw, dl_attprojb, dl_attproj, l_atty, l_attprojw, B, T, C, C, 3);
+            attention_backward(dl_qkv, dl_preatt, dl_att, dl_atty, l_qkv, l_att, B, T, C, NH);
+                      //grads_acts, grads,
+            matmul_backward(dl_ln1, dl_qkvw, dl_qkvb, dl_qkv, l_ln1, l_qkvw, B, T, C, 3 * C, 4);
+            layernorm_backward(dresidual, dl_ln1w, dl_ln1b, dl_ln1, residual, l_ln1w, l_ln1_mean, l_ln1_rstd, B, T, C);
+        }
+        encoder_backward(grads.wte, grads.getWpe(), grads_acts.getEncoded(), loader, B, T, C);
+        loader.setWorkOnCache(false);
+    }
+    //                                  acts    ,     acts
+    private void crossentropy_forward(int losses, int probs, DataLoader targets, int B, int T, int Vp) {
+        // output: losses is (B,T) of the individual losses at each position
+        // input: probs are (B,T,Vp) of the probabilities
+        // input: targets is (B,T) of integers giving the correct index in logits
+        for (int b = 0; b < B; b++) {
+            for (int t = 0; t < T; t++) {
+                int probs_bt = probs + b * T * Vp + t * Vp;//acts
+                int ix = targets.getTargets(b * T + t);
+                //accessingTargets("crossentropy_forward", b, T, t, ix);
+                acts.mem[losses + b * T + t] = (float) -Math.log(acts.mem[probs_bt + ix]);
+            }
+        }
+    }
+                                 //  acts ,     acts,
+    private void softmax_forward(int probs, int logits, int B, int T, int V, int Vp) {
+        // output: probs are (B,T,Vp) of the probabilities (sums to 1.0 in each b,t position)
+        // input: logits is (B,T,Vp) of the unnormalized log probabilities
