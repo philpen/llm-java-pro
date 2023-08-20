@@ -694,3 +694,38 @@ public class GPT2 {
     private void softmax_forward(int probs, int logits, int B, int T, int V, int Vp) {
         // output: probs are (B,T,Vp) of the probabilities (sums to 1.0 in each b,t position)
         // input: logits is (B,T,Vp) of the unnormalized log probabilities
+        // Vp is the padded vocab size (for efficiency), V is the "real" vocab size
+        // example: Vp is 50304 and V is 50257
+        // #pragma omp parallel for collapse(2)//todo
+        for (int b = 0; b < B; b++) {
+            for (int t = 0; t < T; t++) {
+                int logits_bt = logits + b * T * Vp + t * Vp;
+                int probs_bt = probs + b * T * Vp + t * Vp;
+                // maxval is only calculated and subtracted for numerical stability
+                float maxval = -10000.0f; // TODO something better
+                for (int i = 0; i < V; i++) {
+                    if (acts.mem[logits_bt + i] > maxval) {
+                        maxval = acts.mem[logits_bt + i];
+                    }
+                }
+                float sum = 0.0f;
+                for (int i = 0; i < V; i++) {
+                    acts.mem[probs_bt + i] = (float) Math.exp(acts.mem[logits_bt + i] - maxval);
+                    sum += acts.mem[probs_bt + i];
+                }
+                // note we only loop to V, leaving the padded dimensions
+                for (int i = 0; i < V; i++) {
+                    acts.mem[probs_bt + i] /= sum;
+                }
+                // for extra super safety we may wish to include this too,
+                // forcing the probabilities here to be zero, but it shouldn't matter
+                for (int i = V; i < Vp; i++) {
+                    acts.mem[probs_bt + i] = 0.0f;
+                }
+            }
+        }
+    }
+                           //    acts,    acts,
+    private void gelu_forward(int out, int inp, int N) {
+        // (approximate) GeLU elementwise non-linearity in the MLP block of Transformer
+        for (int i = 0; i < N; i++) {
