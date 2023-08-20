@@ -625,3 +625,38 @@ public class GPT2 {
             int dl_ln2w = grads.getLn2w() + l * C;
             int dl_ln2b = grads.getLn2b() + l * C;
             int dl_fcw = grads.getFcw() + l * 4 * C * C;
+            int dl_fcb = grads.getFcb() + l * 4 * C;
+            int dl_fcprojw = grads.getFcprojw() + l * C * 4 * C;
+            int dl_fcprojb = grads.getFcprojb() + l * C;
+            // get the pointers of the activations for this layer
+            int l_ln1 = acts.getLn1() + l * B * T * C;
+            int l_ln1_mean = acts.getLn1Mean() + l * B * T;
+            int l_ln1_rstd = acts.getLn1Rstd() + l * B * T;
+            int l_qkv = acts.getQkv() + l * B * T * 3 * C;
+            int l_atty = acts.getAtty() + l * B * T * C;
+            int l_att = acts.getAtt() + l * B * NH * T * T;
+            int l_residual2 = acts.getResidual2() + l * B * T * C;
+            int l_ln2 = acts.getLn2() + l * B * T * C;
+            int l_ln2_mean = acts.getLn2Mean() + l * B * T;
+            int l_ln2_rstd = acts.getLn2Rstd() + l * B * T;
+            int l_fch = acts.getFch() + l * B * T * 4 * C;
+            int l_fch_gelu = acts.getFchGelu() + l * B * T * 4 * C;
+            // get the pointers of the gradients of the activations for this layer
+            int dl_ln1 = grads_acts.getLn1() + l * B * T * C;
+            int dl_qkv = grads_acts.getQkv() + l * B * T * 3 * C;
+            int dl_atty = grads_acts.getAtty() + l * B * T * C;
+            int dl_preatt = grads_acts.getPreatt() + l * B * NH * T * T;
+            int dl_att = grads_acts.getAtt() + l * B * NH * T * T;
+            int dl_attproj = grads_acts.getAttproj() + l * B * T * C;
+            int dl_residual2 = grads_acts.getResidual2() + l * B * T * C;
+            int dl_ln2 = grads_acts.getLn2() + l * B * T * C;
+            int dl_fch = grads_acts.getFch() + l * B * T * 4 * C;
+            int dl_fch_gelu = grads_acts.getFchGelu() + l * B * T * 4 * C;
+            int dl_fcproj = grads_acts.getFcproj() + l * B * T * C;
+
+            dl_residual3 = grads_acts.getResidual3() + l * B * T * C;
+
+            if (grads_acts.mem[dl_residual3] > 1f) {
+                System.out.printf("dl_residual == %f", grads_acts.mem[dl_residual3]);
+                throw new IllegalStateException("This should never happen");
+            }
