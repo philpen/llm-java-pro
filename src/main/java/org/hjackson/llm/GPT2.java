@@ -729,3 +729,39 @@ public class GPT2 {
     private void gelu_forward(int out, int inp, int N) {
         // (approximate) GeLU elementwise non-linearity in the MLP block of Transformer
         for (int i = 0; i < N; i++) {
+            float x = acts.mem[inp + i];
+            float cube = 0.044715f * x * x * x;
+            acts.mem[out + i] = (float) (0.5f * x * (1.0f + Math.tanh(GELU_SCALING_FACTOR * (x + cube))));
+        }
+    }
+                               //    acts,     acts,     acts
+    private void residual_forward(int out, int inp1, int inp2, int N) {
+        for (int i = 0; i < N; i++) {
+            acts.mem[out + i] = acts.mem[inp1 + i] + acts.mem[inp2 + i];
+        }
+    }
+    //dinp1 == grads_acts  dinp2 == grads_acts  dout  == grads_acts
+    private void residual_backward(int dinp1, int dinp2, int dout, int N) {
+        for (int i = 0; i < N; i++) {
+            grads_acts.mem[dinp1 + i] += grads_acts.mem[dout + i];
+            grads_acts.mem[dinp2 + i] += grads_acts.mem[dout + i];
+        }
+    }
+                            //        acts        acts     acts     acts
+    private void attention_forward(int out, int preatt, int att, int inp, int B, int T, int C, int NH) {
+        // input is (B, T, 3C) holding the query, key, value (Q, K, V) vectors
+        // preatt, att are (B, NH, T, T). NH = number of heads, T = sequence length
+        // that holds the pre-attention and post-attention scores (used in backward)
+        // output is (B, T, C)
+        // attention is the only layer that mixes information across time
+        // every other operation is applied at every (b,t) position independently
+        // (and of course, no layer mixes information across batch)
+        int C3 = C*3;
+        int hs = C / NH; // head size
+        float scale = (float) (1.0f / Math.sqrt(hs));
+        //#pragma omp parallel for collapse(3)//todo
+        for (int b = 0; b < B; b++) {
+            for (int t = 0; t < T; t++) {
+                for (int h = 0; h < NH; h++) {
+                    final int query_t = inp + b * T * C3 + t * C3 + h * hs;//acts
+                    final int preatt_bth = preatt + b * NH * T * T + h * T * T + t * T;//acts
