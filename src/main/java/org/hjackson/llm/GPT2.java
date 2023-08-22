@@ -860,3 +860,35 @@ public class GPT2 {
                 float m = 0.0f;
                 for (int i = 0; i < C; i++) {
                     m += acts.mem[x + i];
+                    //System.out.printf("%d %d %d %1.17f %1.17f\n", b, t, i, acts.mem[x + i], m);
+                }
+                m = m / C;
+                //System.out.printf("%d %d m == %1.17f\n", b, t, m);
+                // calculate the variance (without any bias correction)
+                float v = 0.0f;
+                for (int i = 0; i < C; i++) {
+                    float xshift = (acts.mem[x + i] - m);
+                    v += xshift * xshift;
+                    //System.out.printf("%d %d %d %1.17f %1.17f %1.17f %1.17f\n", b, t, i, acts.mem[x + i], m, xshift, v);
+                }
+                v = v / C;
+
+                //System.out.printf("%d %d m2 == %1.17f\n", b, t, m);
+                //System.out.printf("%d %d m == %1.17f\n", b, t, v);
+
+                // calculate the rstd (reciprocal standard deviation)
+                float s = (float) (1.0f / Math.sqrt(v + eps));
+                // seek to the output position in out[b,t,:]
+                int out_bt = out + (b * T * C + t * C);//acts
+                for (int i = 0; i < C; i++) {
+                    float n = (s * (acts.mem[x + i] - m)); // normalize
+                    float o = n * params.mem[weight + i] + params.mem[bias + i]; // scale and shift
+                    acts.mem[out_bt + i] = o; // write
+                    //System.out.printf("%d %d %d %1.17f %1.17f %1.17f %1.17f %1.17f\n", b, t, i, s, n, o, acts.mem[x + i], m);
+
+                }
+                //stop();
+                // cache the mean and rstd for the backward pass later
+                acts.mem[mean + (b * T + t)] = m;
+                acts.mem[rstd + (b * T + t)] = s;
+                //System.out.printf("%d %d %1.17f %1.17f\n", b, t, m, s);
