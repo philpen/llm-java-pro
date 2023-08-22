@@ -765,3 +765,32 @@ public class GPT2 {
                 for (int h = 0; h < NH; h++) {
                     final int query_t = inp + b * T * C3 + t * C3 + h * hs;//acts
                     final int preatt_bth = preatt + b * NH * T * T + h * T * T + t * T;//acts
+                    final int att_bth = att + b * NH * T * T + h * T * T + t * T;
+                    // pass 1: calculate query dot key and maxval
+                    float maxval = -10000.0f; // TODO something better
+                    for (int t2 = 0; t2 <= t; t2++) {
+                        int key_t2 = inp + b * T * C3 + t2 * C3 + h * hs + C; // +C because it's key
+                        // (query_t) dot (key_t2)
+                        float val = 0.0f;
+                        for (int i = 0; i < hs; i++) {
+                            val += acts.mem[query_t + i] * acts.mem[key_t2 + i];
+                        }
+                        val *= scale;
+                        if (val > maxval) {
+                            maxval = val;
+                        }
+                        acts.mem[preatt_bth + t2] = val;
+                    }
+                    // pass 2: calculate the exp and keep track of sum
+                    // maxval is being calculated and subtracted only for numerical stability
+                    float expsum = 0.0f;
+                    for (int t2 = 0; t2 <= t; t2++) {
+                        float expv = (float) Math.exp(acts.mem[preatt_bth + t2] - maxval);
+                        expsum += expv;
+                        acts.mem[att_bth + t2] = expv;
+                    }
+                    float expsum_inv = expsum == 0.0f ? 0.0f : 1.0f / expsum;
+
+                    // pass 3: normalize to get the softmax
+                    for (int t2 = 0; t2 < T; t2++) {
+                        if (t2 <= t) {
