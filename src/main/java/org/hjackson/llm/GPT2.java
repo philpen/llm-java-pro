@@ -827,3 +827,36 @@ public class GPT2 {
                     int b = bt / T;
                     int t = bt % T;
                     final int out_bt = out + (b * T * OC + t * OC);//acts
+                    final int inp_bt = inp + (b * T * C + t * C);//acts
+                    for (int o = 0; o < OC; o++) {
+                        float val = 0.0f;
+                        if (bias != Integer.MIN_VALUE) {
+                            val = params.mem[bias + o];
+                        }
+                        int wrow = weight + o * C;
+                        for (int i = 0; i < C; i++) {
+                            val += acts.mem[inp_bt + i] * params.mem[wrow + i];
+                            //System.out.printf("%d %d %d val == %1.17f %1.17f %1.17f\n", b, t, i, val, acts.mem[inp_bt + i], params.mem[wrow + i]);
+
+                        }
+                        //stop();
+                        acts.mem[out_bt + o] = val;
+                    }
+                });
+    }
+                                    //acts      acts      acts      acts     params      params
+    private void layernorm_forward(int out, int mean, int rstd, int inp, int weight, int bias, int B, int T, int C) {
+        // reference: https://pytorch.org/docs/stable/generated/torch.nn.LayerNorm.html
+        // both inp and out are (B,T,C) of the activations
+        // mean and rstd are (B,T) buffers, to be used later in backward pass
+        // at each position (b,t) of the input, the C-dimensional vector
+        // of activations gets normalized, then scaled and shifted
+        float eps = 1e-5f;
+        for (int b = 0; b < B; b++) {
+            for (int t = 0; t < T; t++) {
+                // seek to the input position inp[b,t,:]
+                int x = inp + b * T * C + t * C;//acts
+                // calculate the mean
+                float m = 0.0f;
+                for (int i = 0; i < C; i++) {
+                    m += acts.mem[x + i];
