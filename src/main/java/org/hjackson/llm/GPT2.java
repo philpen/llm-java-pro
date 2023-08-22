@@ -794,3 +794,36 @@ public class GPT2 {
                     // pass 3: normalize to get the softmax
                     for (int t2 = 0; t2 < T; t2++) {
                         if (t2 <= t) {
+                            acts.mem[att_bth + t2] *= expsum_inv;
+                        } else {
+                            // causal attention mask. not strictly necessary to set to zero here
+                            // only doing this explicitly for debugging and checking to PyTorch
+                            acts.mem[att_bth + t2] = 0.0f;
+                        }
+                    }
+                    // pass 4: accumulate weighted values into the output of attention
+                    int out_bth = out + b * T * C + t * C + h * hs;
+                    for (int i = 0; i < hs; i++) {
+                        acts.mem[out_bth + i] = 0.0f;
+                    }
+                    for (int t2 = 0; t2 <= t; t2++) {
+                        int value_t2 = inp + b * T * C3 + t2 * C3 + h * hs + C * 2; // +C*2 because it's value
+                        float att_btht2 = acts.mem[att_bth + t2];
+                        for (int i = 0; i < hs; i++) {
+                            acts.mem[out_bth + i] += att_btht2 * acts.mem[value_t2 + i];
+                        }
+                    }
+                }
+            }
+        }
+    }
+                                // acts     acts      params    params
+    private void matmul_forward(int out, int inp, int weight, int bias, int B, int T, int C, int OC) {
+        /* Loop unrolling: https://stackoverflow.com/questions/28482833/understanding-the-collapse-clause-in-openmp  */
+        final int btMax = B * T;
+        IntStream.range(0, btMax) // This is probably not the fastest way to thread this loop
+                .parallel()
+                .forEach(bt -> {
+                    int b = bt / T;
+                    int t = bt % T;
+                    final int out_bt = out + (b * T * OC + t * OC);//acts
