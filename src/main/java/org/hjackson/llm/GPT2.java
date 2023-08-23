@@ -892,3 +892,38 @@ public class GPT2 {
                 acts.mem[mean + (b * T + t)] = m;
                 acts.mem[rstd + (b * T + t)] = s;
                 //System.out.printf("%d %d %1.17f %1.17f\n", b, t, m, s);
+            }
+
+        }
+    }
+    //                          out == acts         wte == params     wpe == params
+    private void encoder_forward(int out, DataLoader inp, int wte, int wpe, int B, int T, int C) {
+        // out is (B,T,C). At each position (b,t), a C-dimensional vector summarizing token & position
+        // inp is (B,T) of integers, holding the token ids at each (b,t) position
+        // wte is (V,C) of token embeddings, short for "weight token embeddings"
+        // wpe is (maxT,C) of position embeddings, short for "weight positional embedding"
+        for (int b = 0; b < B; b++) {
+            for (int t = 0; t < T; t++) {
+                // seek to the output position in out[b,t,:]
+                int out_bt = out + b * T * C + t * C;//acts
+                // get the index of the token at inp[b, t]
+                int ix = inp.getInputs(b * T + t);
+                //accessingInputs("encoder_forward", b, T, t, ix);
+                //System.out.printf("%d\n", ix);
+//                if(ix == 464) {
+//                    throw new IllegalStateException("WTF");
+//                }
+                // seek to the position in wte corresponding to the token
+                int wte_ix = wte + ix * C;//params
+                // seek to the position in wpe corresponding to the position
+                int wpe_t = wpe + t * C;//params
+                // add the two vectors and store the result in out[b,t,:]
+                for (int i = 0; i < C; i++) {
+                    acts.mem[out_bt + i] = params.mem[wte_ix + i] + params.mem[wpe_t + i];
+                    //System.out.printf("%d %d %d %1.17f %1.17f %1.17f\n", b, t, i, acts.mem[out_bt + i], params.mem[wte_ix + i], params.mem[wpe_t + i]);
+                }
+            }
+        }
+        //stop();
+    }
+    public int getNumParams() {
