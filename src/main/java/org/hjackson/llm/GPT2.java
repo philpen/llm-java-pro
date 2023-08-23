@@ -927,3 +927,6 @@ public class GPT2 {
         //stop();
     }
     public int getNumParams() {
+        return num_parameters;
+    }
+}
