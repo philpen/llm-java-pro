@@ -5,4 +5,4 @@ public final class GPT2Config {
     public int vocab_size; // vocab size, e.g. 50257
     public int padded_vocab_size; // padded to e.g. %128==0, 50304
     public int num_layers; // number of layers, e.g. 12
-    public int 
+    public int num_heads; // number of heads in attention
