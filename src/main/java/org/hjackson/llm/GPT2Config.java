@@ -7,4 +7,5 @@ public final class GPT2Config {
     public int num_layers; // number of layers, e.g. 12
     public int num_heads; // number of heads in attention, e.g. 12
     public int channels; // number of channels, e.g. 768
-    public GPT2Config(Int
+    public GPT2Config(IntBuffer header) {
+        this.max_seq_l
