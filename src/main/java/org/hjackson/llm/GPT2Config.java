@@ -8,4 +8,5 @@ public final class GPT2Config {
     public int num_heads; // number of heads in attention, e.g. 12
     public int channels; // number of channels, e.g. 768
     public GPT2Config(IntBuffer header) {
-        this.max_seq_l
+        this.max_seq_len = header.get(2);//maxT
+        this.v
