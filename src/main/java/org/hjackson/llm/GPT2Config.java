@@ -9,4 +9,4 @@ public final class GPT2Config {
     public int channels; // number of channels, e.g. 768
     public GPT2Config(IntBuffer header) {
         this.max_seq_len = header.get(2);//maxT
-        this.v
+        this.vocab_size = header.get(3);
