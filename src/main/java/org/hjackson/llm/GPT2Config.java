@@ -10,4 +10,5 @@ public final class GPT2Config {
     public GPT2Config(IntBuffer header) {
         this.max_seq_len = header.get(2);//maxT
         this.vocab_size = header.get(3); //V
-        this.padded_vocab_size =
+        this.padded_vocab_size = header.get(7); // Vp
+        this.num
