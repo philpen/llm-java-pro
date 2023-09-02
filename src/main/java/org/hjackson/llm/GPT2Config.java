@@ -13,4 +13,6 @@ public final class GPT2Config {
         this.padded_vocab_size = header.get(7); // Vp
         this.num_layers = header.get(4); //L
         this.num_heads = header.get(5);  //NH
-        this.channels = header
+        this.channels = header.get(6);   //C
+    }
+}
