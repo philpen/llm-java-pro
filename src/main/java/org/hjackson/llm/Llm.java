@@ -69,3 +69,42 @@ public class Llm {
                     gen_tokens[i] = tokenizer.end_of_text;
                 }
                 // now sample from the model autoregressively
+                System.out.printf("generating:\n---\n");
+                for (int t = 1; t < genT; t++) {
+                    // note that inference is very wasteful here because for each token
+                    // we re-calculate the forward pass for all of (B,T) positions from scratch
+                    // but the inference here is just for sanity checking anyway
+                    // and we can maybe optimize a bit more later, with careful tests
+                    DataLoader genTokenLoader = new DataLoader(gen_tokens, B, T, "gen", false);
+                    model.gpt2_forward(genTokenLoader, B, T);
+                    // furthermore, below we're only using b=0 (i.e. the first row) of all B rows
+                    // we're in principle running B "inference streams" in parallel here
+                    // but only using position 0
+                    // get the Vp-dimensional vector probs[0, t-1, :]
+                    int probs = model.acts.getProbs() + (t-1) * model.config.padded_vocab_size;
+                    float coin = Random32.random_f32(Random32.RNG_STATE);
+                    // note we're only sampling from the first V elements, ignoring padding
+                    // (the probabilities in the padded region should be zero anyway)
+                    int next_token = model.sample_mult(probs, model.config.vocab_size, coin);
+                    //System.out.printf("\nnext_token == %d coin == %f probs[0] == %f rng_state == %d\n", next_token, coin, model.acts.mem[probs], Random32.RNG_STATE);
+                    gen_tokens[t] = next_token;
+                    // print the generated token, either using the Tokenizer or a fallback
+                    if (tokenizer.init_ok == 1) {
+                        String token_str = tokenizer.tokenizer_decode(next_token);
+                        System.out.printf(token_str);
+                    } else {
+                        // fall back to printing the token id
+                        System.out.printf(String.valueOf(next_token));
+                    }
+                }
+                System.out.printf("\n---\n");
+            }
+            // do a training step
+            start = System.currentTimeMillis();
+            train_loader.dataloader_next_batch();
+            model.gpt2_forward(train_loader, B, T);
+            model.gpt2_zero_grad();
+            model.gpt2_backward();
+            model.gpt2_update(1e-4f, 0.9f, 0.999f, 1e-8f, 0.0f, step+1);
+            end = System.currentTimeMillis(); //clock_gettime(CLOCK_MONOTONIC, &end);
+            long time_elapsed_s = end - start;
