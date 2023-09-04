@@ -75,3 +75,42 @@ public class ParameterTensors {
         attprojw = qkvb + qkvb_size;
         attprojb_size = L * C;
         attprojb = attprojw + attprojw_size;
+        ln2w_size = L * C;
+        ln2w = attprojb + attprojb_size;
+        ln2b_size = L * C;
+        ln2b = ln2w + ln2w_size;
+        fcw_size = L * (4 * C) * C;
+        fcw = ln2b + ln2b_size;
+        fcb_size = L * (4 * C);
+        fcb = fcw + fcw_size;
+        fcprojw_size = L * C * (4 * C);
+        fcprojw = fcb + fcb_size;
+        fcprojb_size = L * C;
+        fcprojb = fcprojw + fcprojw_size;
+        lnfw_size = C;
+        lnfw = fcprojb + fcprojb_size;
+        lnfb_size = C;
+        lnfb = lnfw + lnfw_size;
+        num_params = lnfb + lnfb_size;
+        mem = new float[num_params];
+        tracking.put(58904066, 0.0f);
+    }
+    public boolean ok() {
+        return ok;
+    }
+    public boolean didChange(String s) {//debugging mem access
+        boolean res = false;
+        for(Integer k : tracking.keySet()) {
+            float curr = mem[k];
+            float prev = tracking.get(k);
+            if(Float.compare(curr, prev) != 0) {
+                res = true;
+                System.out.printf("tracking change %d %f -> %f\n", k, prev, curr);
+                tracking.put(k, curr);
+            }
+        }
+        return res;
+    }
+    private void runParamAssertions() {
+        //I'm not looping because I like to know what line failed in the stack trace
+        Assert.floatEquals(mem[wte], -0.11010301113128662f);
