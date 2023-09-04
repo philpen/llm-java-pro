@@ -108,3 +108,7 @@ public class Llm {
             model.gpt2_update(1e-4f, 0.9f, 0.999f, 1e-8f, 0.0f, step+1);
             end = System.currentTimeMillis(); //clock_gettime(CLOCK_MONOTONIC, &end);
             long time_elapsed_s = end - start;
+            System.out.printf("step %d: train loss %f (took %d ms)\n", step, model.mean_loss, time_elapsed_s);
+        }
+    }
+}

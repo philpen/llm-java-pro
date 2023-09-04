@@ -1,0 +1,41 @@
+
+package org.hjackson.llm;
+import java.lang.foreign.MemorySegment;
+import java.lang.foreign.ValueLayout;
+import java.nio.ByteOrder;
+import java.util.*;
+
+public class ParameterTensors {
+    public final int wte;
+    private final int wte_size;
+    private final int wpe;
+    private final int wpe_size;
+    private final int ln1w;
+    private final int ln1w_size;
+    private final int ln1b;
+    private final int ln1b_size;
+    private final int qkvw;
+    private final int qkvw_size;
+    private final int qkvb;
+    private final int qkvb_size;
+    private final int attprojw;
+    private final int attprojw_size;
+    private final int attprojb;
+    private final int attprojb_size;
+    private final int ln2w;
+    private final int ln2w_size;
+    private final int ln2b;
+    private final int ln2b_size;
+    private final int fcw;
+    private final int fcw_size;
+    private final int fcb;
+    private final int fcb_size;
+    private final int fcprojw;
+    private final int fcprojw_size;
+    private final int fcprojb;
+    private final int fcprojb_size;
+    private final int lnfw;
+    private final int lnfw_size;
+    private final int lnfb;
+    private final int lnfb_size;
+    private final int num_params;
