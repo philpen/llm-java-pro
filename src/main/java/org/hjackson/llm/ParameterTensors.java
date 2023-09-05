@@ -114,3 +114,34 @@ public class ParameterTensors {
     private void runParamAssertions() {
         //I'm not looping because I like to know what line failed in the stack trace
         Assert.floatEquals(mem[wte], -0.11010301113128662f);
+        Assert.floatEquals(mem[wte + 5], -0.078917674720287323f);
+        Assert.floatEquals(mem[wpe], -0.018820719793438911f);
+        Assert.floatEquals(mem[wpe + 1], -0.197418600320816040f);
+        Assert.floatEquals(mem[wpe + 5], -0.105013281106948853f);
+        Assert.floatEquals(mem[ln1w + 1], 0.181958660483360291f);
+        Assert.floatEquals(mem[ln1w + 5], 0.194811657071113586f);
+        Assert.floatEquals(mem[ln1b], -0.003677325090393424f);
+        Assert.floatEquals(mem[ln1b + 5], -0.011468173004686832f);
+        Assert.floatEquals(mem[qkvw], -0.473848402500152588f);
+        Assert.floatEquals(mem[qkvw + 5], 0.032973293215036392f);
+        Assert.floatEquals(mem[qkvb], 0.480339139699935913f);
+        Assert.floatEquals(mem[qkvb + 5], -0.095427356660366058f);
+        Assert.floatEquals(mem[attprojw], 0.312718182802200317f);
+        Assert.floatEquals(mem[attprojw + 5], -0.437642186880111694f);
+        Assert.floatEquals(mem[attprojb], 0.150291591882705688f);
+        Assert.floatEquals(mem[attprojb + 5], -0.034447547048330307f);
+        Assert.floatEquals(mem[ln2w], 0.130966052412986755f);
+        Assert.floatEquals(mem[ln2w + 5], 1.269531369209289551f);
+        Assert.floatEquals(mem[ln2b], 0.042478270828723907f);
+        Assert.floatEquals(mem[ln2b + 5], -0.026806578040122986f);
+        Assert.floatEquals(mem[fcw], 0.094201952219009399f);
+        Assert.floatEquals(mem[fcw + 5], 0.051278203725814819f);
+        Assert.floatEquals(mem[fcb], 0.039619479328393936f);
+        Assert.floatEquals(mem[fcb + 5], -0.014704782515764236f);
+        Assert.floatEquals(mem[fcprojw], -0.106606408953666687f);
+        Assert.floatEquals(mem[fcprojw + 5], -0.105633556842803955f);
+        Assert.floatEquals(mem[fcprojb], 0.045023269951343536f);
+        Assert.floatEquals(mem[fcprojb + 5], -0.238876312971115112f);
+        Assert.floatEquals(mem[lnfw], 1.397080421447753906f);
+        Assert.floatEquals(mem[lnfw + 5], 1.250811934471130371f);
+        Assert.floatEquals(mem[lnfb], 0.001087164739146829f);
