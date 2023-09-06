@@ -174,3 +174,27 @@ public class ParameterTensors {
     }
     public int getFcprojw() {
         return fcprojw;
+    }
+    public int getLn1w() {
+        return ln1w;
+    }
+    public int getLn1b() {
+        return ln1b;
+    }
+    public int getQkvb() {
+        return qkvb;
+    }
+    public int getAttprojb() {
+        return attprojb;
+    }
+    public int getLn2b() {
+        return ln2b;
+    }
+    public int getFcb() { return fcb;}
+    public int getFcprojb() {
+        return fcprojb;
+    }
+    public int getWpe() {
+        return wpe;
+    }
+}
