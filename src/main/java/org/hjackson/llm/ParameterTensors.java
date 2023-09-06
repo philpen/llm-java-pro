@@ -145,3 +145,32 @@ public class ParameterTensors {
         Assert.floatEquals(mem[lnfw], 1.397080421447753906f);
         Assert.floatEquals(mem[lnfw + 5], 1.250811934471130371f);
         Assert.floatEquals(mem[lnfb], 0.001087164739146829f);
+        Assert.floatEquals(mem[lnfb + 5], -0.071351118385791779f);
+    }
+    public int getWte() {
+        return wte;
+    }
+    public int getNumParams() {
+        return num_params;
+    }
+    public void zeroFill() { Arrays.fill(mem, 0); }
+    public int getLnfw() {
+        return lnfw;
+    }
+    public int getLnfb() {
+        return lnfb;
+    }
+    public int getQkvw() {
+        return qkvw;
+    }
+    public int getAttprojw() {
+        return attprojw;
+    }
+    public int getLn2w() {
+        return ln2w;
+    }
+    public int getFcw() {
+        return fcw;
+    }
+    public int getFcprojw() {
+        return fcprojw;
