@@ -5,4 +5,4 @@ import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 
 public class Random32 {
-    public static
+    public static Long RNG_STATE = Long.parseUnsi
