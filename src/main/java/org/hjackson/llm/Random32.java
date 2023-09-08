@@ -4,4 +4,5 @@ import java.math.BigInteger;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 
-publ
+public class Random32 {
+    public static
