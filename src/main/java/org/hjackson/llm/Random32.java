@@ -8,4 +8,4 @@ public class Random32 {
     public static Long RNG_STATE = Long.parseUnsignedLong("1337");
 
     private static long random_u32(Long state) {
-        // xorshift rng: http
+        // xorshift rng: https://en.wikipedia.org/wiki/Xorshift#xorshift.2A
