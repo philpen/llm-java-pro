@@ -11,4 +11,7 @@ public class Random32 {
         // xorshift rng: https://en.wikipedia.org/wiki/Xorshift#xorshift.2A
         state ^= state >>> 12;
         state ^= state << 25;
-        state ^= state >>> 2
+        state ^= state >>> 27;
+        RNG_STATE = state;
+
+        Bi
