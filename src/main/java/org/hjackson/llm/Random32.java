@@ -14,4 +14,4 @@ public class Random32 {
         state ^= state >>> 27;
         RNG_STATE = state;
 
-        Bi
+        BigInteger bi = BigInteger.val
