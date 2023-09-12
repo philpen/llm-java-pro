@@ -15,4 +15,4 @@ public class Random32 {
         RNG_STATE = state;
 
         BigInteger bi = BigInteger.valueOf(state);
-        final Big
+        final BigInteger mul = bi.multiply(Big
