@@ -18,4 +18,5 @@ public class Random32 {
         final BigInteger mul = bi.multiply(BigInteger.valueOf(0x2545F4914F6CDD1DL));
         long[] foo = new long[1];
         LongStream.range(32, 64).forEach((i) -> {
-            if(mul.testBit(
+            if(mul.testBit((int) i)) {
+                foo[
