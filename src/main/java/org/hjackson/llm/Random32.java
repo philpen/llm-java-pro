@@ -19,4 +19,5 @@ public class Random32 {
         long[] foo = new long[1];
         LongStream.range(32, 64).forEach((i) -> {
             if(mul.testBit((int) i)) {
-                foo[
+                foo[0] |= (1L << (i-32));
+                
