@@ -20,4 +20,5 @@ public class Random32 {
         LongStream.range(32, 64).forEach((i) -> {
             if(mul.testBit((int) i)) {
                 foo[0] |= (1L << (i-32));
-                //System.out.printf("i == %d foo == 
+                //System.out.printf("i == %d foo == %d   %d\n", i, foo[0], foo[0]*2);
+  
