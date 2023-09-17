@@ -23,4 +23,4 @@ public class Random32 {
                 //System.out.printf("i == %d foo == %d   %d\n", i, foo[0], foo[0]*2);
             }
         });
-        //System.out.printf("foo = %d mul == %s bitlength == %d state == %d\n", foo[0], mul +
+        //System.out.printf("foo = %d mul == %s bitlength == %d state == %d\n", foo[0], mul + "", mul.bitLength(), state);
