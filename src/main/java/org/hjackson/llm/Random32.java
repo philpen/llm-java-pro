@@ -24,3 +24,5 @@ public class Random32 {
             }
         });
         //System.out.printf("foo = %d mul == %s bitlength == %d state == %d\n", foo[0], mul + "", mul.bitLength(), state);
+        Long tmp = foo[0];
+ 
