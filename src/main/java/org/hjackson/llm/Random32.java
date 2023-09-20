@@ -29,4 +29,4 @@ public class Random32 {
         return tmp;
     }
 
-    public static flo
+    public static float random_f32_(Long state) { //
