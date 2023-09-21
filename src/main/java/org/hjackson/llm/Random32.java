@@ -34,4 +34,4 @@ public class Random32 {
     }
 
     public static float random_f32(Long state) { // random float32 in [0,1)
-        return (random_u32
+        return (random_u32(state) >> 8) / 16777216.0
