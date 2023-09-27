@@ -6,4 +6,5 @@ import java.nio.charset.StandardCharsets;
 import java.rmi.UnexpectedException;
 
 public class Tokenizer {
-    priv
+    private final int vocab_size;
+    pri
