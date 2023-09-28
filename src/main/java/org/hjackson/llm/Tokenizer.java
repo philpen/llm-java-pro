@@ -7,4 +7,5 @@ import java.rmi.UnexpectedException;
 
 public class Tokenizer {
     private final int vocab_size;
-    pri
+    private final String[] token_table;
+    publi
