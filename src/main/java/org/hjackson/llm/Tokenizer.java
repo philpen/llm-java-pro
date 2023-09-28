@@ -10,4 +10,5 @@ public class Tokenizer {
     private final String[] token_table;
     public final int init_ok;
     final int end_of_text;
-    private RandomAccessF
+    private RandomAccessFile file;
+    private String 
