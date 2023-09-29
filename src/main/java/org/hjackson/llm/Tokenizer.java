@@ -12,4 +12,5 @@ public class Tokenizer {
     final int end_of_text;
     private RandomAccessFile file;
     private String fileName;
-    private final int[] h
+    private final int[] header = new int[256];
+    //private f
