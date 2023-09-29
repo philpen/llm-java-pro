@@ -15,4 +15,4 @@ public class Tokenizer {
     private final int[] header = new int[256];
     //private final int init_ok;
 
-    public
+    public Tokenizer(String filename) thro
