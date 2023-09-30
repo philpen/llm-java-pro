@@ -16,4 +16,6 @@ public class Tokenizer {
     //private final int init_ok;
 
     public Tokenizer(String filename) throws IOException {
-        fileName = filen
+        fileName = filename;
+
+        File f = new File(fi
