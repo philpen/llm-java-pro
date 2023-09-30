@@ -18,4 +18,7 @@ public class Tokenizer {
     public Tokenizer(String filename) throws IOException {
         fileName = filename;
 
-        File f = new File(fi
+        File f = new File(filename);
+
+        if (!f.exists()) {
+    
