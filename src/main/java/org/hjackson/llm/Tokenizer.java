@@ -21,4 +21,5 @@ public class Tokenizer {
         File f = new File(filename);
 
         if (!f.exists()) {
-            // try to be more helpful as we just a
+            // try to be more helpful as we just added this feature, erase later
+   
