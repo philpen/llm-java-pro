@@ -25,4 +25,5 @@ public class Tokenizer {
             System.out.printf(
                     """
                                   ---
-                                  WARNING: Failed to open the toke
+                                  WARNING: Failed to open the tokenizer file {}
+                  
