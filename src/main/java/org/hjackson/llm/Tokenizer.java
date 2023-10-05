@@ -27,4 +27,4 @@ public class Tokenizer {
                                   ---
                                   WARNING: Failed to open the tokenizer file {}
                                            The Tokenizer is a new feature added April 14 2024.\n
-                                        
+                                           "Re-run `python train_gpt2.py` to write 
