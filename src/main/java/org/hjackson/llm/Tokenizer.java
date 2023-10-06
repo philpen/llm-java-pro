@@ -29,4 +29,6 @@ public class Tokenizer {
                                            The Tokenizer is a new feature added April 14 2024.\n
                                            "Re-run `python train_gpt2.py` to write it\\n");
                                   ---       
-                            """, 
+                            """, filename);
+        }
+        file = new Rand
