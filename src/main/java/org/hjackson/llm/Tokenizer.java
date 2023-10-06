@@ -31,4 +31,5 @@ public class Tokenizer {
                                   ---       
                             """, filename);
         }
-        file = new Rand
+        file = new RandomAccessFile(f, "r");
+        // re
