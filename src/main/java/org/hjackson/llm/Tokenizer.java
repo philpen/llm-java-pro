@@ -34,4 +34,5 @@ public class Tokenizer {
         file = new RandomAccessFile(f, "r");
         // read in the header
         for (int i = 0; i < 256; i++) {
-            //file has integers in little endian, jv
+            //file has integers in little endian, jvm is bigendian
+            h
