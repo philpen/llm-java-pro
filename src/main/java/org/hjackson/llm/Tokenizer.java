@@ -33,4 +33,5 @@ public class Tokenizer {
         }
         file = new RandomAccessFile(f, "r");
         // read in the header
-        for (in
+        for (int i = 0; i < 256; i++) {
+            
