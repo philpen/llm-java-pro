@@ -32,4 +32,5 @@ public class Tokenizer {
                             """, filename);
         }
         file = new RandomAccessFile(f, "r");
-        // re
+        // read in the header
+        for (in
