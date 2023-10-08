@@ -35,4 +35,4 @@ public class Tokenizer {
         // read in the header
         for (int i = 0; i < 256; i++) {
             //file has integers in little endian, jvm is bigendian
-            h
+            header[i] = Integer.reverseBytes
