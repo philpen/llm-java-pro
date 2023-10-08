@@ -37,4 +37,4 @@ public class Tokenizer {
             //file has integers in little endian, jvm is bigendian
             header[i] = Integer.reverseBytes(file.readInt());
         }
-        Sy
+        System.out.printf("header[0] == %d\n",
