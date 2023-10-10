@@ -38,4 +38,5 @@ public class Tokenizer {
             header[i] = Integer.reverseBytes(file.readInt());
         }
         System.out.printf("header[0] == %d\n", header[0]);
-        System.out.printf("header[0] == %d\n", heade
+        System.out.printf("header[0] == %d\n", header[2]);
+        assert (header[0] =
