@@ -39,4 +39,5 @@ public class Tokenizer {
         }
         System.out.printf("header[0] == %d\n", header[0]);
         System.out.printf("header[0] == %d\n", header[2]);
-        assert (header[0] =
+        assert (header[0] == 20240328);
+        assert (header[1] == 
