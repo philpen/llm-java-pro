@@ -42,4 +42,4 @@ public class Tokenizer {
         assert (header[0] == 20240328);
         assert (header[1] == 2);
         vocab_size = header[2];
-     
+        end_of_text = header[3];
