@@ -46,4 +46,4 @@ public class Tokenizer {
         if(end_of_text != 50256) {
             throw new UnexpectedException("Something has changed");
         }
-        System.out.pr
+        System.out.printf("Vocab Size == %d end_of_text 
