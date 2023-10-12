@@ -44,4 +44,6 @@ public class Tokenizer {
         vocab_size = header[2];
         end_of_text = header[3];
         if(end_of_text != 50256) {
-            throw new UnexpectedException("Something ha
+            throw new UnexpectedException("Something has changed");
+        }
+        System.out.pr
