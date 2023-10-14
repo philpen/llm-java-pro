@@ -49,4 +49,5 @@ public class Tokenizer {
         System.out.printf("Vocab Size == %d end_of_text == %d\n", vocab_size, end_of_text);
         // read in all the tokens
         int length;
-        token_table = new Strin
+        token_table = new String[vocab_size];
+       
