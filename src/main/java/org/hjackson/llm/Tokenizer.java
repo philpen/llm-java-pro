@@ -50,4 +50,5 @@ public class Tokenizer {
         // read in all the tokens
         int length;
         token_table = new String[vocab_size];
-       
+        int pos = 1024;
+        int
