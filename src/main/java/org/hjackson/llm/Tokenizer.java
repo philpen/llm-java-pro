@@ -52,4 +52,5 @@ public class Tokenizer {
         token_table = new String[vocab_size];
         int pos = 1024;
         int vocabEnd =  vocab_size + 1024;
-      
+        int n = 0;
+        for 
