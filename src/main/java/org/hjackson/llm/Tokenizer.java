@@ -53,4 +53,6 @@ public class Tokenizer {
         int pos = 1024;
         int vocabEnd =  vocab_size + 1024;
         int n = 0;
-        for (int i = pos; i < vocabEnd; i+
+        for (int i = pos; i < vocabEnd; i++) {
+            file.seek(pos);
+          
