@@ -56,4 +56,4 @@ public class Tokenizer {
         for (int i = pos; i < vocabEnd; i++) {
             file.seek(pos);
             byte l = file.readByte();
-        
+            length = l & 0xff;// ja
