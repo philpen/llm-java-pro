@@ -56,4 +56,5 @@ public class Tokenizer {
         for (int i = pos; i < vocabEnd; i++) {
             file.seek(pos);
             byte l = file.readByte();
-            length = l & 0xff;// java uses signed bytes, con
+            length = l & 0xff;// java uses signed bytes, convert to unsigned
+            assert(
