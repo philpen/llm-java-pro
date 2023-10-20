@@ -59,4 +59,5 @@ public class Tokenizer {
             length = l & 0xff;// java uses signed bytes, convert to unsigned
             assert(length > 0);
             byte[] tmp = new byte[length];
-            int t = file.read(
+            int t = file.read(tmp, 0, length);
+            Stri
