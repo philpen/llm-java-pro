@@ -61,4 +61,5 @@ public class Tokenizer {
             byte[] tmp = new byte[length];
             int t = file.read(tmp, 0, length);
             String tok = new String(tmp, StandardCharsets.UTF_8);
-          
+            //System.out.printf(tok);
+            tok
