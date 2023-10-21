@@ -62,4 +62,5 @@ public class Tokenizer {
             int t = file.read(tmp, 0, length);
             String tok = new String(tmp, StandardCharsets.UTF_8);
             //System.out.printf(tok);
-            tok
+            token_table[n++] = tok;
+            pos =
