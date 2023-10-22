@@ -67,4 +67,7 @@ public class Tokenizer {
             //System.out.printf(">%s<\n", tok);
         }
         file.close();
-        init_ok = 1
+        init_ok = 1;
+    }
+
+    String tokenize
