@@ -66,4 +66,5 @@ public class Tokenizer {
             pos = pos + 1 + length;
             //System.out.printf(">%s<\n", tok);
         }
-        file.cl
+        file.close();
+        init_ok = 1
