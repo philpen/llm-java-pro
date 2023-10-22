@@ -64,4 +64,6 @@ public class Tokenizer {
             //System.out.printf(tok);
             token_table[n++] = tok;
             pos = pos + 1 + length;
-            //System.out.printf(">%s
+            //System.out.printf(">%s<\n", tok);
+        }
+        file.cl
