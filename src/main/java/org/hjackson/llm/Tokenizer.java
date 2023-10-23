@@ -72,4 +72,6 @@ public class Tokenizer {
 
     String tokenizer_decode(int token_id) {
         if (init_ok == 0) {
-    
+            return null;
+        }
+  
