@@ -70,4 +70,5 @@ public class Tokenizer {
         init_ok = 1;
     }
 
-    String tokenize
+    String tokenizer_decode(int token_id) {
+  
