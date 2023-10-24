@@ -74,4 +74,5 @@ public class Tokenizer {
         if (init_ok == 0) {
             return null;
         }
-        if (token_id < vocab_siz
+        if (token_id < vocab_size) {
+            return token_tab
