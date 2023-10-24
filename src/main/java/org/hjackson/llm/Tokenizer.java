@@ -75,4 +75,5 @@ public class Tokenizer {
             return null;
         }
         if (token_id < vocab_size) {
-            return token_tab
+            return token_table[token_id];
+        } el
