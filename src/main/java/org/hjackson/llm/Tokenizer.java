@@ -76,4 +76,5 @@ public class Tokenizer {
         }
         if (token_id < vocab_size) {
             return token_table[token_id];
-        } el
+        } else {
+            System.ou
