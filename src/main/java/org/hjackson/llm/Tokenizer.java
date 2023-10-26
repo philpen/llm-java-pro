@@ -78,4 +78,4 @@ public class Tokenizer {
             return token_table[token_id];
         } else {
             System.out.printf("invalid token id {}!\n", token_id);
-            thr
+            throw new IllegalStateExcepti
