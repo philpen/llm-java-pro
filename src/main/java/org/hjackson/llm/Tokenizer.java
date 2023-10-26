@@ -77,4 +77,5 @@ public class Tokenizer {
         if (token_id < vocab_size) {
             return token_table[token_id];
         } else {
-            System.out.printf("invalid token id {
+            System.out.printf("invalid token id {}!\n", token_id);
+            thr
