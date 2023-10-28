@@ -79,3 +79,7 @@ public class Tokenizer {
         } else {
             System.out.printf("invalid token id {}!\n", token_id);
             throw new IllegalStateException("Something bad happened, bad token_id: " + token_id);
+        }
+    }
+}
+
