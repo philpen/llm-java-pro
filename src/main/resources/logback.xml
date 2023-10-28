@@ -1,2 +1,2 @@
 <configuration>
-  <appender name="STDOUT" 
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleApp
