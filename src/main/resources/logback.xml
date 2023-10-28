@@ -1,1 +1,2 @@
-<configur
+<configuration>
+  <appender name="STDOUT" 
