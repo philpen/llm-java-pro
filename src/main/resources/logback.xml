@@ -3,3 +3,5 @@
     <encoder>
       <pattern>%msg%n</pattern>
     </encoder>
+  </appender>
+  <root level
