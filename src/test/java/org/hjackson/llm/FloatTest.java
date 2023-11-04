@@ -1,4 +1,6 @@
 package org.hjackson.llm;
 
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.a
+import org.junit.jupiter.api.Test;
+
+public class Float
