@@ -6,4 +6,5 @@ import org.junit.jupiter.api.Test;
 public class FloatTest {
 
     @Test
-    public voi
+    public void randomTest() {
+        float test = Ran
