@@ -12,4 +12,5 @@ public class FloatTest {
         Assertions.assertEquals(0.23031723499298096f, test);
     }
 
-    @
+    @Test
+    public void floatTest
