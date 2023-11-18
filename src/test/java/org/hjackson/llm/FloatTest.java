@@ -16,4 +16,5 @@ public class FloatTest {
     public void floatTest() {
         float[] flts = new float[]{
                 0.76013361582701647f,
-                0.700
+                0.70070299091981488f,
+            
