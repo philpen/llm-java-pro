@@ -15,4 +15,5 @@ public class FloatTest {
     @Test
     public void floatTest() {
         float[] flts = new float[]{
-                0.760133
+                0.76013361582701647f,
+                0.700
