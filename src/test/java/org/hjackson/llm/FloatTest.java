@@ -14,4 +14,5 @@ public class FloatTest {
 
     @Test
     public void floatTest() {
-        float[] flts = new
+        float[] flts = new float[]{
+                0.760133
