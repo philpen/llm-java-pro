@@ -25,4 +25,5 @@ public class FloatTest {
                 0.42380991715935123f,
                 0.68629753833876820f,
                 0.81503492082268957f};
-        float 
+        float res = 1.0f;
+        for(float f : flts
