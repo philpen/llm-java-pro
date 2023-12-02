@@ -28,4 +28,6 @@ public class FloatTest {
         float res = 1.0f;
         for(float f : flts) {
             res /= f;
-      
+            res *= f;
+        }
+
