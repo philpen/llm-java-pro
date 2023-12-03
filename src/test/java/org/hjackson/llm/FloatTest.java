@@ -31,4 +31,5 @@ public class FloatTest {
             res *= f;
         }
 
-        System.out.printf("%1.1
+        System.out.printf("%1.17f\n", res);
+                                   
