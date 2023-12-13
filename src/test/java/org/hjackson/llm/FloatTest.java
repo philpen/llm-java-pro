@@ -32,4 +32,5 @@ public class FloatTest {
         }
 
         System.out.printf("%1.17f\n", res);
-                                          //0.99999994039535522 same c
+                                          //0.99999994039535522 same calc in C
+        Asser
