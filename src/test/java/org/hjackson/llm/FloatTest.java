@@ -33,4 +33,8 @@ public class FloatTest {
 
         System.out.printf("%1.17f\n", res);
                                           //0.99999994039535522 same calc in C
-        Assertions.assertEquals(res, 0.99999
+        Assertions.assertEquals(res, 0.99999994039535520f);
+    }
+
+
+}
