@@ -76,3 +76,28 @@ class GPT2Test {
         int[] x = new int[B * T];
         int[] y = new int[B * T];
         for (int i = 0; i < x.length; i++) {
+            x[i] = byteBuffer.order(ByteOrder.LITTLE_ENDIAN).getInt();
+            cpos +=4;
+            Assertions.assertEquals(cpos, byteBuffer.position());
+            //System.out.printf("%d %d\n", n, x[i]);
+        }
+        DataLoader loader = new DataLoader(x, B, T, "test", true);
+        for (int i = 0; i < y.length; i++) {
+            y[i] = byteBuffer.order(ByteOrder.LITTLE_ENDIAN).getInt();
+            cpos +=4;
+            Assertions.assertEquals(cpos, byteBuffer.position());
+            //System.out.printf("%d x[i] == %s y[i] == %s\n", i, x[i], y[i]);
+        }
+        float expected_loss = 0.0f;
+        final int num_params = model.getNumParams();
+        int btv = B * T * V;
+        float[] expected_logits = new float[btv];
+        System.out.printf("reading expected_logits\n");
+        for (int i = 0; i < btv; i++) {
+            float f = byteBuffer.order(ByteOrder.LITTLE_ENDIAN).getFloat();
+            expected_logits[i] = f;
+            cpos +=4;
+            Assertions.assertEquals(cpos, byteBuffer.position());
+        }
+
+        expected_loss = byteBuffer.order(ByteOrder.LITTLE_ENDIAN).getFloat();
