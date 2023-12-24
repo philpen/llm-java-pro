@@ -101,3 +101,43 @@ class GPT2Test {
         }
 
         expected_loss = byteBuffer.order(ByteOrder.LITTLE_ENDIAN).getFloat();
+        cpos +=4;
+        Assertions.assertEquals(cpos, byteBuffer.position());
+        float[] expected_grads_memory = new float[num_params];
+        System.out.printf("reading expected_grads_memory num_params == %d pos == %d rem == %d\n", num_params, cpos, byteBuffer.remaining());
+        for (int i = 0; i < num_params; i++) {
+            //System.out.printf("%d\n", i);
+            float f = byteBuffer.order(ByteOrder.LITTLE_ENDIAN).getFloat();
+            //System.out.printf("%d %1.17f\n", n, f);
+            expected_grads_memory[i] = f;
+            cpos +=4;
+            Assertions.assertEquals(cpos, byteBuffer.position());
+        }
+        System.out.printf("cpos == %d\n", cpos);
+        Assertions.assertEquals(cpos, byteBuffer.position());
+        Assertions.assertEquals(549369860, byteBuffer.position());
+    /* expected_logits[0]    == -43.43161774
+       expected_loss         == 5.27000856
+       expected_grads_memory == -0.00231974 */
+        System.out.printf("expected_logits[0] == %f length == %d\n", expected_logits[0], expected_logits.length);
+        System.out.printf("expected_loss            == %f\n", expected_loss);
+        System.out.printf("expected_grads_memory[0] == %f length == %d\n", expected_grads_memory[0], expected_grads_memory.length);
+        // overall OK signal for the test
+        boolean allok = true;
+        // expected losses are as follows, from Python
+        float[] expected_losses = {
+                5.270007133483887f,
+                4.059706687927246f,
+                3.3751230239868164f,
+                2.8007826805114746f,
+                2.315382242202759f,
+                1.8490285873413086f,
+                1.3946564197540283f,
+                0.9991465210914612f,
+                0.6240804195404053f,
+                0.37651097774505615f
+        };
+        // let's do 10 training iterations, following the pytorch code
+        float[] losses = new float[10];
+        for (int step = 0; step < 10; step++) {
+            Instant start = Instant.now();
