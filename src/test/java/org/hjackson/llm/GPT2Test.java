@@ -141,3 +141,40 @@ class GPT2Test {
         float[] losses = new float[10];
         for (int step = 0; step < 10; step++) {
             Instant start = Instant.now();
+            model.gpt2_forward(loader, B, T);
+            model.gpt2_zero_grad();
+            model.gpt2_backward();
+            Instant end = Instant.now();
+            System.out.printf("Duration: %d seconds\n", Duration.between(end, start).getSeconds());
+            ActivationTensors acts = model.acts;
+            if (step == 0) {
+                // error checking at step 0 for reference activations/gradients
+                // at this point, target should be equal to expected_logits, let's compare
+                boolean logits_ok = true;
+                int calculated_logits = acts.getLogits();
+                float max_diff = 0.0f;
+                for (int bt = 0; bt < B * T; bt++) {
+
+                    for (int v = 0; v < V; v++) { // note we only loop to V (ignoring padding)
+                        int i = bt * Vp + v; // linearized index, using Vp
+                        if (i < 10) {
+                            System.out.printf("%1.10f, %1.10f\n", expected_logits[i], model.acts.mem[calculated_logits + i]);
+                        }
+                        float diff = Math.abs(expected_logits[bt * V + v] - model.acts.mem[calculated_logits + i]);
+                        max_diff = Math.max(max_diff, diff);
+                        if (diff >= 1e-2f) {
+                            System.out.printf("MISMATCH AT INDEX %d,%d: ", bt, v);
+                            System.out.printf("%1.10f %1.10f\n", expected_logits[bt * V + v], model.acts.mem[calculated_logits + i]);
+                            logits_ok = false;
+                            bt = B * T; // to break out of both loops
+                            break;
+                        }
+                    }
+                }
+                if (!logits_ok) {
+                    System.out.printf("Logits not ok, exiting\n");
+                    System.exit(1);
+                }
+                System.out.printf("OK (LOGITS)\n");
+                allok = allok && logits_ok;
+                // compare the achieved loss
