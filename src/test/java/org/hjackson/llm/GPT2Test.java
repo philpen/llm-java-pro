@@ -221,3 +221,39 @@ class GPT2Test {
         }
         System.out.printf("overall okay: %d", allok);
     }
+
+
+    boolean check_tensor(int start, float[] b, int n, String label) {
+        int print_upto = 5;
+        boolean ok = true;
+        float maxdiff = 0.0f;
+        float tol = 2e-2f;
+        System.out.printf("%s\n", label);
+        for (int i = 0; i < n; i++) {
+            float diff = Math.abs(model.grads.mem[start + i] - b[i]);
+            ok = ok && (diff <= tol);
+            if (diff > maxdiff) {
+                maxdiff = diff;
+            }
+            // for the first few elements of each tensor, pretty print
+            // the actual numbers, so we can do a visual, qualitative proof/assessment
+            if (i < print_upto) {
+                if (diff <= tol) {
+                    if (i < print_upto) {
+                        System.out.printf("OK ");
+                    }
+                } else {
+                    if (i < print_upto) {
+                        System.out.printf("NOT OK ");
+                    }
+                }
+                System.out.printf("%f %f\n", model.grads.mem[start + i], b[i]);
+            }
+        }
+        // print the final result for this tensor
+        if (ok) {
+            System.out.printf("TENSOR OK, maxdiff = %e\n", maxdiff);
+        } else {
+            System.out.printf("TENSOR NOT OK, maxdiff = %e\n", maxdiff);
+        }
+        return ok;
