@@ -257,3 +257,7 @@ class GPT2Test {
             System.out.printf("TENSOR NOT OK, maxdiff = %e\n", maxdiff);
         }
         return ok;
+    }
+
+
+}
