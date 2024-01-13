@@ -11,4 +11,4 @@ import static org.junit.jupiter.api.Assertions.*;
 class Random32Test {
     @Test
     void random_f32() {
-        Ass
+        Assertions.assertEquals(1337, R
