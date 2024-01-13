@@ -8,4 +8,7 @@ import java.util.random.RandomGeneratorFactory;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class Random32Test 
+class Random32Test {
+    @Test
+    void random_f32() {
+        Ass
