@@ -12,4 +12,4 @@ class Random32Test {
     @Test
     void random_f32() {
         Assertions.assertEquals(1337, Random32.RNG_STATE);
-        A
+        Assertions.assertEquals(0
