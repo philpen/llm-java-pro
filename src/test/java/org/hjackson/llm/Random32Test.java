@@ -14,4 +14,5 @@ class Random32Test {
         Assertions.assertEquals(1337, Random32.RNG_STATE);
         Assertions.assertEquals(0.23031723499298096f, Random32.random_f32(Random32.RNG_STATE));
 
-        Assertions.assertEquals(44862276727l, Random32.RNG_S
+        Assertions.assertEquals(44862276727l, Random32.RNG_STATE);
+        Asser
