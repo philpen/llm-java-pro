@@ -127,3 +127,45 @@ class GPT(nn.Module):
             ln_f = nn.LayerNorm(config.n_embd),
         ))
         self.lm_head = nn.Linear(config.n_embd, config.vocab_size, bias=False)
+        self.transformer.wte.weight = self.lm_head.weight # https://paperswithcode.com/method/weight-tying
+
+    def forward(self, idx, targets=None):
+        device = idx.device
+        b, t = idx.size()
+        assert t <= self.config.block_size, f"Cannot forward sequence of length {t}, block size is only {self.config.block_size}"
+        pos = torch.arange(0, t, dtype=torch.long, device=device) # shape (t)
+
+        # forward the GPT model itself
+        tok_emb = self.transformer.wte(idx) # token embeddings of shape (b, t, n_embd)
+        pos_emb = self.transformer.wpe(pos) # position embeddings of shape (t, n_embd)
+        x = tok_emb + pos_emb
+
+        for block in self.transformer.h:
+            x = block(x)
+        x = self.transformer.ln_f(x)
+
+        if targets is not None:
+            # if we are given some desired targets also calculate the loss
+            logits = self.lm_head(x)
+            loss = F.cross_entropy(logits.view(-1, logits.size(-1)), targets.view(-1), ignore_index=-1)
+        else:
+            # inference-time mini-optimization: only forward the lm_head on the very last position
+            logits = self.lm_head(x[:, [-1], :]) # note: using list [-1] to preserve the time dim
+            loss = None
+
+        return logits, loss
+
+    @classmethod
+    def from_pretrained(cls, model_type):
+        """Loads pretrained GPT-2 model weights from huggingface"""
+        assert model_type in {'gpt2', 'gpt2-medium', 'gpt2-large', 'gpt2-xl'}
+        from transformers import GPT2LMHeadModel
+        print("loading weights from pretrained gpt: %s" % model_type)
+
+        # n_layer, n_head and n_embd are determined from model_type
+        config_args = {
+            'gpt2':         dict(n_layer=12, n_head=12, n_embd=768),  # 124M params
+            'gpt2-medium':  dict(n_layer=24, n_head=16, n_embd=1024), # 350M params
+            'gpt2-large':   dict(n_layer=36, n_head=20, n_embd=1280), # 774M params
+            'gpt2-xl':      dict(n_layer=48, n_head=25, n_embd=1600), # 1558M params
+        }[model_type]
