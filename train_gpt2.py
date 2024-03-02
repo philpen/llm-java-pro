@@ -347,3 +347,45 @@ def write_state(model, x, y, logits, loss, filename):
         file.write(header.numpy().tobytes())
         # input x
         file.write(x.cpu().numpy().astype("int32").tobytes()) # (B, T)
+        # targets y
+        file.write(y.cpu().numpy().astype("int32").tobytes()) # (B, T)
+        # logits (result of the model forward pass)
+        write_fp32(logits.cpu(), file)
+        # loss (single float, result of the cross entropy loss)
+        write_fp32(loss.cpu(), file)
+        # gradients
+        write_tensors(grads, model.config.n_layer, file, "float32")
+    print(f"wrote {filename}")
+
+def write_tokenizer(enc, filename):
+    n = enc.max_token_value + 1
+    header = torch.zeros(256, dtype=torch.int32)
+    header[0] = 20240328 # magic
+    header[1] = 2 # tokenizer version = 2 (1 -> 2: includes EOT token)
+    header[2] = n # number of tokens
+    header[3] = enc.eot_token # EOT token
+    with open(filename, "wb") as file:
+        file.write(header.numpy().tobytes())
+        for i in range(n):
+            b = enc.decode_bytes([i])
+            length = len(b)
+            assert length < 256, f"Token length exceeds 255: {length}"
+            file.write(struct.pack("<B", length))  # Write the length as a 1-byte unsigned integer
+            file.write(b)  # Write the actual bytes
+    print(f"wrote {filename}")
+
+def print0(*args, **kwargs):
+    # modified print that only prints from the master process
+    # if this is not a distributed run, it's just a print
+    if int(os.environ.get("RANK", 0)) == 0:
+        print(*args, **kwargs)
+
+if __name__ == "__main__":
+    import time
+    import argparse
+    import tiktoken
+    print0(f"Running pytorch {torch.version.__version__}")
+
+    # default settings will overfit a tiny batch of data
+    # and save model weights and debug state to disk on the first iteration
+    # if you'd like to e.g. time the forward pass only, call this script as:
