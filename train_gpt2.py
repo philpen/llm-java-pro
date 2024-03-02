@@ -283,3 +283,32 @@ def pad_vocab(tensor, multiple=128, value=0):
     which is unfortunately a very unfriendly number for a lot of
     matrix operations on the GPU. So we pad it to the nearest
     friendlier multiple, e.g. 50,304 if multiple=128 when we
+    export the weights into C land. This is a NOOP algorithmically
+    and is only done to make the tensor operations more efficient.
+    """
+    assert tensor.ndim == 2
+    V, C = tensor.shape
+    assert V == 50257, "just being defensive here"
+    # calculate padded vocab size by rounding up to nearest multiple
+    Vp = ((V + multiple - 1) // multiple) * multiple
+    # pad the tensor
+    pad_rows = Vp - V
+    padded = tensor if pad_rows == 0 else F.pad(tensor, (0, 0, 0, pad_rows), value=value)
+    assert padded.shape == (Vp, C)
+    return padded
+
+def write_model(model, filename, dtype):
+    # everything we need to instantiate the model
+    # 1) header is: version int, GPTConfig ints, padding to 1024 bytes
+    assert dtype in {"float32", "bfloat16"} # float16 todo maybe later
+    version = {
+        "float32": 3, # 3: all tensors are fp32, padded vocab
+        "bfloat16": 5, # 5: all tensors are bf16, padded vocab
+    }[dtype]
+    header = torch.zeros(256, dtype=torch.int32)
+    header[0] = 20240326 # magic
+    header[1] = version # checkpoint version
+    header[2] = model.config.block_size
+    header[3] = model.config.vocab_size
+    header[4] = model.config.n_layer
+    header[5] = model.config.n_head
