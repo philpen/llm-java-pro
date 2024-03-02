@@ -312,3 +312,38 @@ def write_model(model, filename, dtype):
     header[3] = model.config.vocab_size
     header[4] = model.config.n_layer
     header[5] = model.config.n_head
+    header[6] = model.config.n_embd
+    # 2) the parameters follow the header
+    params = {name: param.cpu() for name, param in model.named_parameters()}
+    # pad the vocab to a multiple of 128 here at export, for efficiency in C
+    wte = params["transformer.wte.weight"] # (V, C)
+    wte_padded = pad_vocab(wte) # (Vp, C)
+    params["transformer.wte.weight"] = wte_padded # (Vp, C)
+    print(f"padded vocab size from {wte.size(0)} to {wte_padded.size(0)}")
+    header[7] = wte_padded.size(0) # padded vocab size store in header
+    # now write to file
+    with open(filename, "wb") as file:
+        file.write(header.numpy().tobytes()) # header
+        write_tensors(params, model.config.n_layer, file, dtype) # params
+    print(f"wrote {filename}")
+
+def write_state(model, x, y, logits, loss, filename):
+    # the state is used for debugging.
+    # it contains information about the input, logits, loss, and the parameter gradients
+    # this can be used for checking the computation correctness in C
+    header = torch.zeros(256, dtype=torch.int32)
+    header[0] = 20240327 # magic
+    header[1] = 2 # run state version = 2 (1 -> 2 for padded vocab changes)
+    header[2] = x.size(0) # batch size of the batch, B
+    header[3] = x.size(1) # temporal extent of the batch, T
+    grads = {name: param.grad.cpu() for name, param in model.named_parameters()}
+    # pad the vocab grads here as well, to mirror write_model
+    wte_grad = grads["transformer.wte.weight"] # (V, C)
+    wte_grad_padded = pad_vocab(wte_grad, value=0) # (Vp, C) # TODO later maybe pad with nan?
+    grads["transformer.wte.weight"] = wte_grad_padded # (Vp, C)
+    print(f"padded vocab size in reference grads from {wte_grad.size(0)} to {wte_grad_padded.size(0)}")
+    with open(filename, "wb") as file:
+        # header
+        file.write(header.numpy().tobytes())
+        # input x
+        file.write(x.cpu().numpy().astype("int32").tobytes()) # (B, T)
