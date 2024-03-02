@@ -245,3 +245,41 @@ def write_bf16(tensor, file):
     file.write(b)
 
 def write_tensors(model_tensors, L, file, dtype):
+    assert dtype in {"float32", "bfloat16"}
+    write_fun = write_fp32 if dtype == "float32" else write_bf16
+    write_fun(model_tensors["transformer.wte.weight"], file) # (V, C)
+    write_fun(model_tensors["transformer.wpe.weight"], file) # (T, C)
+    for i in range(L): # (L, C)
+        write_fun(model_tensors[f"transformer.h.{i}.ln_1.weight"], file)
+    for i in range(L): # (L, C)
+        write_fun(model_tensors[f"transformer.h.{i}.ln_1.bias"], file)
+    for i in range(L): # (L, 3C, C)
+        write_fun(model_tensors[f"transformer.h.{i}.attn.c_attn.weight"], file)
+    for i in range(L): # (L, 3C)
+        write_fun(model_tensors[f"transformer.h.{i}.attn.c_attn.bias"], file)
+    for i in range(L): # (L, C, C)
+        write_fun(model_tensors[f"transformer.h.{i}.attn.c_proj.weight"], file)
+    for i in range(L): # (L, C)
+        write_fun(model_tensors[f"transformer.h.{i}.attn.c_proj.bias"], file)
+    for i in range(L): # (L, C)
+        write_fun(model_tensors[f"transformer.h.{i}.ln_2.weight"], file)
+    for i in range(L): # (L, C)
+        write_fun(model_tensors[f"transformer.h.{i}.ln_2.bias"], file)
+    for i in range(L): # (L, 4C, C)
+        write_fun(model_tensors[f"transformer.h.{i}.mlp.c_fc.weight"], file)
+    for i in range(L): # (L, 4C)
+        write_fun(model_tensors[f"transformer.h.{i}.mlp.c_fc.bias"], file)
+    for i in range(L): # (L, C, 4C)
+        write_fun(model_tensors[f"transformer.h.{i}.mlp.c_proj.weight"], file)
+    for i in range(L): # (L, C)
+        write_fun(model_tensors[f"transformer.h.{i}.mlp.c_proj.bias"], file)
+    write_fun(model_tensors["transformer.ln_f.weight"], file) # (C, )
+    write_fun(model_tensors["transformer.ln_f.bias"], file) # (C, )
+
+@torch.no_grad()
+def pad_vocab(tensor, multiple=128, value=0):
+    """
+    The dimension of the vocab size in GPT-2 is 50,257
+    which is unfortunately a very unfriendly number for a lot of
+    matrix operations on the GPU. So we pad it to the nearest
+    friendlier multiple, e.g. 50,304 if multiple=128 when we
