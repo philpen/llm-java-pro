@@ -412,3 +412,38 @@ if __name__ == "__main__":
         # use of DDP atm demands CUDA, we set the device appropriately according to rank
         assert torch.cuda.is_available(), "for now i think we need CUDA for DDP"
         init_process_group(backend='nccl')
+        ddp_rank = int(os.environ['RANK'])
+        ddp_local_rank = int(os.environ['LOCAL_RANK'])
+        ddp_world_size = int(os.environ['WORLD_SIZE'])
+        device = f'cuda:{ddp_local_rank}'
+        torch.cuda.set_device(device)
+        master_process = ddp_rank == 0 # this process will do logging, checkpointing etc.
+        seed_offset = ddp_rank # each process gets a different seed
+    else:
+        ddp_world_size = 1
+        master_process = True
+        seed_offset = 0
+        # select the device
+        if args.device:
+            # provided explicitly by the user
+            device = args.device
+        else:
+            # attempt to autodetect the device
+            device = "cpu"
+            if torch.cuda.is_available():
+                device = "cuda"
+            elif hasattr(torch.backends, "mps") and torch.backends.mps.is_available():
+                device = "mps"
+    print(f"using device: {device}")
+
+    # set up a context manager following the desired dtype and device
+    ptdtype = {'float32': torch.float32, 'bfloat16': torch.bfloat16, 'float16': torch.float16}[args.dtype]
+    ctx = torch.amp.autocast(device_type="cuda", dtype=ptdtype) if device == "cuda" else nullcontext()
+
+    # seed the random number generators (in DDP we want different processes to use different offsets)
+    # in the code below we don't actually use random numbers because there is no active dataloader
+    # loading actual batches of data, etc. but it is a good practice and something to be careful with,
+    # explicit with and think about, so I am leaving this here.
+    torch.manual_seed(42 + seed_offset)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed(42 + seed_offset)
