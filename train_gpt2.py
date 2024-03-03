@@ -517,3 +517,43 @@ if __name__ == "__main__":
     # do one forward pass to generate ground truth for our C tests
     if master_process and (not args.inference_only and args.write_tensors):
         logits, loss = model(x, y)
+        loss.backward()
+        # save model params, in both float32 and bfloat16
+        write_model(model, "gpt2_124M.bin", dtype="float32")
+        write_model(model, "gpt2_124M_bf16.bin", dtype="bfloat16")
+        # save x, y, logits, loss, and parameter gradients, for debugging C
+        # always store these in fp32 to have an accurate reference (?)
+        write_state(model, x, y, logits, loss, "gpt2_124M_debug_state.bin")
+
+    # -------------------------------------------------------------------------
+    # STAGE 2: training loop to get timings
+
+    # here we wrap model into DDP container
+    if ddp:
+        model = DDP(model, device_ids=[ddp_local_rank])
+    raw_model = model.module if ddp else model # always contains the "raw" unwrapped model
+
+    # init the optimizer
+    adam_use_fused = device == "cuda" # only works on CUDA (?)
+    optimizer = torch.optim.Adam(model.parameters(), lr=1e-4, fused=adam_use_fused)
+
+    if device == "cuda":
+        torch.cuda.reset_peak_memory_stats()
+    timings = []
+    for i in range(args.num_iterations):
+        t0 = time.time()
+        with ctx:
+            logits, loss = model(x, y)
+            del logits
+        if not args.inference_only:
+            optimizer.zero_grad(set_to_none=True)
+            loss.backward()
+            optimizer.step()
+        # wait on the CPU for all device work to end so we get accurate per-iteration timings below
+        if device == "mps":
+            torch.mps.synchronize()
+        elif device == "cuda":
+            torch.cuda.synchronize()
+        # time and print
+        t1 = time.time()
+        # the 0th iteration is often an outlier (much slower) => skip logging it
