@@ -389,3 +389,26 @@ if __name__ == "__main__":
     # default settings will overfit a tiny batch of data
     # and save model weights and debug state to disk on the first iteration
     # if you'd like to e.g. time the forward pass only, call this script as:
+    # python train_gpt2.py --inference_only 1 --write_tensors 0 --sequence_length 1024
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--write_tensors", type=int, default=1, help="write tensors to disk")
+    parser.add_argument("--inference_only", type=int, default=0, help="only run inference")
+    parser.add_argument("--dtype", type=str, default="float32", help="float32|float16|bfloat16")
+    parser.add_argument("--device", type=str, default="", help="by default we autodetect, or set it here")
+    parser.add_argument("--compile", type=int, default=0, help="torch.compile the model")
+    parser.add_argument("--tensorcores", type=int, default=0, help="use tensorcores")
+    parser.add_argument("--flash", type=int, default=0, help="use flash attention")
+    parser.add_argument("--num_iterations", type=int, default=10, help="number of iterations to run")
+    parser.add_argument("--batch_size", type=int, default=4, help="batch size")
+    parser.add_argument("--sequence_length", type=int, default=64, help="sequence length")
+    args = parser.parse_args()
+    B, T = args.batch_size, args.sequence_length
+    assert 1 <= T <= 1024
+    assert args.dtype in {"float32", "float16", "bfloat16"}
+
+    # set up DDP (distributed data parallel). torchrun sets this env variable
+    ddp = int(os.environ.get('RANK', -1)) != -1 # is this a ddp run?
+    if ddp:
+        # use of DDP atm demands CUDA, we set the device appropriately according to rank
+        assert torch.cuda.is_available(), "for now i think we need CUDA for DDP"
+        init_process_group(backend='nccl')
