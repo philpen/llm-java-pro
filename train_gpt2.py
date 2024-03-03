@@ -447,3 +447,34 @@ if __name__ == "__main__":
     torch.manual_seed(42 + seed_offset)
     if torch.cuda.is_available():
         torch.cuda.manual_seed(42 + seed_offset)
+
+    # set the torch precision mode to use TensorFloat32 (TF32) for matmuls
+    # docs https://pytorch.org/docs/stable/generated/torch.set_float32_matmul_precision.html
+    if args.tensorcores:
+        torch.set_float32_matmul_precision('high')
+
+    # turn on/off flash attention
+    assert args.flash in {0, 1}
+    FLASH = args.flash
+
+    # init (and write) the tokenizer
+    enc = tiktoken.get_encoding("gpt2")
+    encode = lambda s: enc.encode(s, allowed_special={"<|endoftext|>"})
+    decode = lambda l: enc.decode(l)
+    if master_process and args.write_tensors: # tokenizer is technically not tensors but ok
+        write_tokenizer(enc, "gpt2_tokenizer.bin")
+
+    # load the GPT-2 model weights
+    model = GPT.from_pretrained("gpt2")
+    model.train()
+    model.to(device)
+    if args.compile:
+        if hasattr(config, "coordinate_descent_tuning"):
+            config.coordinate_descent_tuning = True # suggested by @Chillee
+        print0("compiling the model...")
+        model = torch.compile(model)
+
+    # -------------------------------------------------------------------------
+    # data loading related: long but it's just to get a single batch of data
+
+    # load the tokens
