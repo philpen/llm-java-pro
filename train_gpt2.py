@@ -478,3 +478,42 @@ if __name__ == "__main__":
     # data loading related: long but it's just to get a single batch of data
 
     # load the tokens
+    # prefer to use tiny_shakespeare if it's available, otherwise use tiny_stories
+    # we're using val instead of train split just because it is smaller/faster
+    shake_tokens_bin = "data/tiny_shakespeare_val.bin"
+    story_tokens_bin = "data/TinyStories_val.bin"
+    assert os.path.isfile(shake_tokens_bin) or os.path.isfile(story_tokens_bin), "you must run prepro on some dataset"
+    tokens_bin = shake_tokens_bin if os.path.isfile(shake_tokens_bin) else story_tokens_bin
+    assert os.path.isfile(tokens_bin)
+    print0(f"loading cached tokens in {tokens_bin}")
+    with open(tokens_bin, "rb") as f:
+        tokens = np.frombuffer(f.read(), dtype=np.int32)
+
+    # np -> tensor, long, on device
+    tokens = torch.tensor(tokens)
+    tokens = tokens.to(torch.long)
+    tokens = tokens.to(device)
+
+    # lightweight dataloader
+    def get_batch():
+        assert B*T+1 <= len(tokens), "not enough tokens"
+        # for 338,025 tokens. E.g. with B=8 T=1024, this will yield 41 batches before looping
+        i = 0
+        while True:
+            x = tokens[i:i+B*T].view(B, T)
+            y = tokens[i+1:i+B*T+1].view(B, T)
+            yield x, y
+            i += B*T
+            if i + B*T + 1 >= len(tokens):
+                i = 0 # in prod we'd want to randomize the start point a bit
+
+    # fetch one batch of data, which we will overfit to
+    data_iter = iter(get_batch())
+    x, y = next(data_iter) # we'll overfit this batch below
+
+    # -------------------------------------------------------------------------
+    # STAGE 1: weights / state logging for C to load later
+
+    # do one forward pass to generate ground truth for our C tests
+    if master_process and (not args.inference_only and args.write_tensors):
+        logits, loss = model(x, y)
