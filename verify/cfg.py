@@ -40,3 +40,33 @@ class ParameterTensors:
 
         self.ln1w_size = self.L * self.C
         self.ln1w = self.wpe + self.wpe_size
+
+        self.ln1b_size = self.L * self.C
+        self.ln1b = self.ln1w + self.ln1w_size
+
+        self.qkvw_size = self.L * (3 * self.C) * self.C
+        self.qkvw = self.ln1b + self.ln1b_size
+
+        self.qkvb_size = self.L * (3 * self.C)
+        self.qkvb = self.qkvw + self.qkvw_size
+
+        self.attprojw_size = self.L * self.C * self.C
+        self.attprojw = self.qkvb + self.qkvb_size
+
+        self.attprojb_size = self.L * self.C
+        self.attprojb = self.attprojw + self.attprojw_size
+
+        self.ln2w_size = self.L * self.C
+        self.ln2w = self.attprojb + self.attprojb_size
+
+        self.ln2b_size = self.L * self.C
+        self.ln2b = self.ln2w + self.ln2w_size
+
+        self.fcw_size = self.L * (4 * self.C) * self.C
+        self.fcw = self.ln2b + self.ln2b_size
+
+        self.fcb_size = self.L * (4 * self.C)
+        self.fcb = self.fcw + self.fcw_size
+
+        self.fcprojw_size = self.L * self.C * (4 * self.C)
+        self.fcprojw = self.fcb + self.fcb_size
