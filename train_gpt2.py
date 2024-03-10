@@ -557,3 +557,36 @@ if __name__ == "__main__":
         # time and print
         t1 = time.time()
         # the 0th iteration is often an outlier (much slower) => skip logging it
+        tokens_per_second = ddp_world_size * B * T / (t1-t0)
+        print0(f"iteration {i+1}, loss: {loss.item():.4f}, time: {(t1-t0)*1000:.3f}ms, tok/s: {tokens_per_second:.2f}")
+        if i > 0 and i > args.num_iterations - 20:
+            timings.append(t1-t0)
+
+    # print the average of the last 20 timings, to get something smooth-ish
+    timings = timings[-20:]
+    print0(f"final {len(timings)} iters avg: {np.mean(timings)*1000:.3f}ms")
+    print0(f"peak memory consumption: {torch.cuda.max_memory_allocated() // 1024 // 1024} MiB")
+
+    # -------------------------------------------------------------------------
+    # STAGE 3: Few steps of inference
+    if master_process:
+
+        # before we end, let's also do one round of inference
+        # we'll kick off the generation with "<|endoftext|>", which designates the start of a new sequence
+        start = "<|endoftext|>"
+        start_ids = encode(start)
+        x = (torch.tensor(start_ids, dtype=torch.long, device=device)[None, ...])
+
+        # run generation for 16 time steps (tokens)
+        max_new_tokens = 16
+        temperature = 1.0
+        top_k = 40
+        raw_model.eval()
+        y = raw_model.generate(x, max_new_tokens, temperature=temperature, top_k=top_k)
+        print0(decode(y[0].tolist()))
+        print0('---------------')
+
+    # -------------------------------------------------------------------------
+    # clean up nice
+    if ddp:
+        destroy_process_group()
