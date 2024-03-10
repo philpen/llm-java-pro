@@ -70,3 +70,27 @@ class ParameterTensors:
 
         self.fcprojw_size = self.L * self.C * (4 * self.C)
         self.fcprojw = self.fcb + self.fcb_size
+
+        self.fcprojb_size = self.L * self.C
+        self.fcprojb = self.fcprojw + self.fcprojw_size
+
+        self.lnfw_size = self.C
+        self.lnfw = self.fcprojb + self.fcprojb_size
+
+        self.lnfb_size = self.C
+        self.lnfb = self.lnfw + self.lnfw_size
+
+        self.num_params = self.lnfb + self.lnfb_size
+        log.info(f"num_params {self.num_params}")
+        self.run_assertions()
+
+    def getMem(self, ix):
+        return self.mem[ix]
+
+    def run_assertions(self):
+        v = self.mem[self.wte]
+        print(f'wte[0] == {v}')
+        assert(self.mem[self.wte] == -0.11010301113128662)
+        assert(self.mem[self.wte + 5] == -0.078917674720287323)
+
+        assert (self.mem[self.wpe] == -0.018820719793438911)
