@@ -135,3 +135,12 @@ class ParameterTensors:
         assert (self.getMem(self.fcprojb + 5) == -0.238876312971115112)
 
         assert (self.getMem(self.lnfw) == 1.397080421447753906)
+        assert (self.getMem(self.lnfw + 5) == 1.250811934471130371)
+
+        print(f'printing {self.getMem(self.lnfb)}\n')
+        assert (self.getMem(self.lnfb) == 0.00108716473914682)
+        assert (self.getMem(self.lnfb + 5) == -0.071351118385791779)
+
+
+
+
